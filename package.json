@@ -1,17 +1,51 @@
 {
   "name": "@illli-studio/ai-rss",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "微信公众号订阅文章自动化：多号监控、阅读量追踪、舆情线索、ima 入库、定时 RSS 日报和飞书推送",
   "type": "module",
-  "bin": { "ai-rss": "bin/ai-rss.mjs" },
+  "bin": {
+    "ai-rss": "bin/ai-rss.mjs"
+  },
   "exports": "./src/client.mjs",
-  "files": ["bin", "src", "skills", "README.md", "LICENSE"],
-  "engines": { "node": ">=22" },
-  "scripts": { "test": "node --test" },
+  "files": [
+    "bin",
+    "src",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
   "license": "MIT",
-  "publishConfig": { "registry": "https://registry.npmjs.org/", "access": "public" },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "homepage": "https://rss.illli.cc/",
-  "repository": { "type": "git", "url": "git+https://github.com/illli-studio/ai-rss.git" },
-  "bugs": { "url": "https://github.com/illli-studio/ai-rss/issues" },
-  "keywords": ["wechat", "wechat-official-accounts", "rss", "微信公众号", "公众号订阅", "公众号监控", "阅读量追踪", "舆情分析", "ima", "日报", "monitoring", "cli", "workbuddy"]
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/illli-studio/ai-rss.git"
+  },
+  "bugs": {
+    "url": "https://github.com/illli-studio/ai-rss/issues"
+  },
+  "keywords": [
+    "wechat",
+    "wechat-official-accounts",
+    "rss",
+    "微信公众号",
+    "公众号订阅",
+    "公众号监控",
+    "阅读量追踪",
+    "舆情分析",
+    "ima",
+    "日报",
+    "monitoring",
+    "cli",
+    "workbuddy"
+  ]
 }

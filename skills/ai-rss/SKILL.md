@@ -5,7 +5,7 @@ description: 微信公众号订阅文章自动化。用于公众号文章监控�
 
 # ai-rss · 微信公众号订阅文章自动化
 
-技能由 `npx skills add illli-studio/ai-rss --skill ai-rss` 从 GitHub 安装。实际操作调用 npm 正式版 `npx --yes @illli-studio/ai-rss@0.2.0 <命令>`，把手册中的 `ai-rss` 替换成这个前缀。
+技能由 `npx skills add illli-studio/ai-rss --skill ai-rss` 从 GitHub 安装。实际操作调用 npm 正式版 `npx --yes @illli-studio/ai-rss@0.2.1 <命令>`，把手册中的 `ai-rss` 替换成这个前缀。
 
 先运行 `status` 检查登录。未登录时，如果客户端支持保持终端进程运行，直接发起 `login --no-browser`，把输出的完整浏览器授权地址发给当前用户，保留链接末尾的内容，并保持进程等待授权。用户只需打开链接，用邮箱登录或注册，再点「确认连接」。新版链接自动带上授权码；仅在页面提示手动输入时使用终端显示的码。确认命令成功后再继续用户原本的请求。若客户端无法保持进程运行，才请用户自行运行 `npx @illli-studio/ai-rss login`。不要让用户把密码或密钥发到聊天。首次采集需在工作台绑定微信读书账号。
 
