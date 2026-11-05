@@ -1,5 +1,5 @@
 {
-  "name": "ai-rss",
+  "name": "@illli-studio/ai-rss",
   "version": "0.1.0",
   "description": "微信公众号自动化 CLI 与 AI 技能：管理订阅、批量采集、任务排障、跨号监控和原文检索",
   "type": "module",
@@ -9,6 +9,7 @@
   "engines": { "node": ">=22" },
   "scripts": { "test": "node --test" },
   "license": "MIT",
+  "publishConfig": { "registry": "https://registry.npmjs.org/", "access": "public" },
   "homepage": "https://rss.illli.cc/",
   "repository": { "type": "git", "url": "git+https://github.com/illli-studio/ai-rss.git" },
   "bugs": { "url": "https://github.com/illli-studio/ai-rss/issues" },

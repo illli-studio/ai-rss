@@ -55,16 +55,16 @@ Feed 的阅读器订阅链接由核心服务生成。用 [Feed 接入指南](htt
 
 自动化也可以在工作台「Feed 与 API → 密钥管理」创建 AI 控制密钥，并同时设置 `AI_RSS_URL` 和 `AI_RSS_KEY`。密码和密钥都不要发到聊天。CLI 登录只连接工作空间，首次采集仍需在工作台绑定自己的微信读书账号。使用快速登录前，核心服务需要更新到支持它的版本。
 
-需要 Node.js 22 或更高版本。当前可在源码目录直接运行，或本地安装 CLI：
+需要 Node.js 22 或更高版本。从 npm 安装：
 
 ```sh
-npm install -g .
+npm install -g @illli-studio/ai-rss
 ai-rss login
 ai-rss status
 ai-rss overview
 ```
 
-如不全局安装，把示例里的 `ai-rss` 换成 `node bin/ai-rss.mjs`。部署在自己机器上时，根地址可以用 `http://127.0.0.1:5200`；其他实例需要 HTTPS。
+也可以运行 `npx @illli-studio/ai-rss demo` 直接体验，或在源码目录用 `node bin/ai-rss.mjs`。部署在自己机器上时，根地址可以用 `http://127.0.0.1:5200`；其他实例需要 HTTPS。
 
 ## 三个可以独立运行的用法
 
