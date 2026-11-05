@@ -4,6 +4,7 @@ import { setTimeout as wait } from 'node:timers/promises';
 import { controlPath as AI } from '../src/client.mjs';
 import { activeClient, login, logout } from '../src/login.mjs';
 import { markdownReport } from '../src/report.mjs';
+import { intelligenceCommand } from '../src/intelligence.mjs';
 import pkg from '../package.json' with { type: 'json' };
 
 const HELP = `ai-rss — 微信公众号订阅文章自动化
@@ -19,6 +20,7 @@ const HELP = `ai-rss — 微信公众号订阅文章自动化
   ai-rss source add --fakeid ID --title 名称
   ai-rss source pause <订阅ID>
   ai-rss source resume <订阅ID>
+  ai-rss source interval <订阅ID> --minutes <分钟>
   ai-rss fetch run --source <订阅ID,订阅ID>
   ai-rss job status|cancel|retry <任务ID>
   ai-rss job wait <任务ID> [--timeout 秒]
@@ -35,6 +37,18 @@ const HELP = `ai-rss — 微信公众号订阅文章自动化
   ai-rss collection remove <名称> --article <文章ID>
   ai-rss collection delete <名称>
   ai-rss collection export <名称> [--format markdown|json]
+  ai-rss intel create <名称> --monitor <监控组> [--preset ai-tech] [--at 09:00] [--timezone Asia/Shanghai]
+                       [--exclude 词,词] [--ima-base ID] [--ima-folder ID] [--feishu] [--clear-destinations]
+  ai-rss intel list
+  ai-rss intel run|pause|resume|delete <名称>
+  ai-rss intel analyze <名称> [--days 天] [--format markdown|json]
+  ai-rss intel feed <名称>
+  ai-rss report list <规则名称>
+  ai-rss report show <报告ID> [--format markdown|json]
+  ai-rss report retry <报告ID>
+  ai-rss metrics quote --count <篇数>
+  ai-rss metrics refresh --articles <文章ID,文章ID> --max-cost <人民币金额>
+  ai-rss metrics history <文章ID>
 
 使用 ai-rss login 登录，或同时设置 AI_RSS_URL、AI_RSS_KEY。不要把密钥放在命令参数里。
 除 Markdown 导出和帮助信息外，操作结果输出为 JSON。`;
@@ -90,10 +104,22 @@ async function main([group, action, ...args]) {
     return output(await logout({localOnly:v['local-only']}));
   }
   const api = await activeClient();
+  if (['intel','report','metrics'].includes(group)) {
+    const result=await intelligenceCommand(api,group,action,args);
+    if (result?.partial && group==='metrics') process.exitCode=1;
+    return output(result);
+  }
   const get = (path, query) => api.request(path, { query });
   const send = (path, method, body) => api.request(path, opt(method, body));
   switch (group+' '+(action ?? '')) {
-    case 'status ': return output(await get(AI+'/status'));
+    case 'status ': {
+      const result=await get(AI+'/status');
+      if (result.membership?.active===false) {
+        result.billingUrl=api.origin+'/dashboard#billing';
+        process.stderr.write('体验期或会员已到期。开通或续费：'+result.billingUrl+'\n');
+      }
+      return output(result);
+    }
     case 'overview ': return output(await get('/api/v1/overview'));
     case 'audit ': return output(await get(AI+'/audit'));
     case 'source list': parse(args,0); return output(await get('/open-api/subscriptions'));
@@ -120,6 +146,11 @@ async function main([group, action, ...args]) {
     case 'source resume': {
       const [source] = parse(args,1);
       return output(await send('/api/v1/subscriptions/batch','POST',{ ids:[source],action }));
+    }
+    case 'source interval': {
+      const [source,v]=parse(args,1,{minutes:str});
+      return output(await send('/api/v1/subscriptions/'+id(source),'PATCH',
+        {interval_minutes:number(v.minutes,1,1440,'采集间隔')}));
     }
     case 'fetch run': {
       const [,v] = parse(args,0,{ source:str });
@@ -202,6 +233,6 @@ async function main([group, action, ...args]) {
 }
 
 main(process.argv.slice(2)).catch((error)=>{
-  process.stderr.write(JSON.stringify({ error:error.message,status:error.status })+'\n');
+  process.stderr.write(JSON.stringify({ error:error.message,status:error.status,code:error.code,billingUrl:error.billingUrl })+'\n');
   process.exitCode=1;
 });

@@ -1,9 +1,11 @@
 export const controlPath = '/api/v1/ai';
 
 export class ApiError extends Error {
-  constructor(status, message) {
+  constructor(status, message, details = {}) {
     super(message);
     this.status = status;
+    this.code = details.code;
+    this.billingUrl = details.billingUrl;
   }
 }
 
@@ -19,6 +21,7 @@ export function validateOrigin(baseUrl) {
 
 function jsonClient(base, key, transport) {
   return {
+    origin: base.origin,
     async request(path, { method = 'GET', body, query } = {}) {
       const url = new URL(path, base);
       if (url.origin !== base.origin || !/^\/(api\/v1\/|open-api\/)/.test(url.pathname)) {
@@ -43,7 +46,10 @@ function jsonClient(base, key, transport) {
         const message = response.status === 404 && url.pathname === controlPath+'/status'
           ? '目标实例尚未启用 AI 控制接口，请先更新核心服务。'
           : (result?.error ?? '接口请求失败');
-        const error = new ApiError(response.status, key ? String(message).replaceAll(key, '[已隐藏]') : String(message));
+        const billingUrl = response.status===402 ? new URL('/dashboard#billing',base).href : undefined;
+        const safeMessage = key ? String(message).replaceAll(key, '[已隐藏]') : String(message);
+        const error = new ApiError(response.status, billingUrl ? safeMessage+'。开通或续费：'+billingUrl : safeMessage,
+          {code:response.status===402?'membership_expired':undefined,billingUrl});
         if (response.status===429 && Number.isInteger(result?.interval)) error.interval=result.interval;
         throw error;
       }

@@ -28,3 +28,10 @@ test('export keeps source attribution and links and marks missing bodies', () =>
   assert.match(output,/正文未归档/);
   assert.doesNotMatch(markdownReport('测试',[{title:'假链接',originalUrl:'javascript:alert(1)'}]),/javascript:/);
 });
+
+test('membership expiration includes a billing link on the configured instance', async () => {
+  const api=createClient({baseUrl:'https://example.test',key,
+    transport:async()=>Response.json({error:'套餐已到期'},{status:402})});
+  await assert.rejects(api.request('/api/v1/ai/intelligence/rules'),error=>
+    error.code==='membership_expired'&&error.billingUrl==='https://example.test/dashboard#billing');
+});

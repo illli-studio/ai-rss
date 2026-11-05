@@ -1,7 +1,7 @@
 {
   "name": "@illli-studio/ai-rss",
-  "version": "0.1.1",
-  "description": "微信公众号订阅文章自动化：批量采集、跨号监控、文章检索、RSS 输出与 AI 技能",
+  "version": "0.2.0",
+  "description": "微信公众号订阅文章自动化：多号监控、阅读量追踪、舆情线索、ima 入库、定时 RSS 日报和飞书推送",
   "type": "module",
   "bin": { "ai-rss": "bin/ai-rss.mjs" },
   "exports": "./src/client.mjs",
@@ -13,5 +13,5 @@
   "homepage": "https://rss.illli.cc/",
   "repository": { "type": "git", "url": "git+https://github.com/illli-studio/ai-rss.git" },
   "bugs": { "url": "https://github.com/illli-studio/ai-rss/issues" },
-  "keywords": ["wechat", "wechat-official-accounts", "rss", "微信公众号", "公众号订阅", "文章自动化", "monitoring", "cli", "workbuddy"]
+  "keywords": ["wechat", "wechat-official-accounts", "rss", "微信公众号", "公众号订阅", "公众号监控", "阅读量追踪", "舆情分析", "ima", "日报", "monitoring", "cli", "workbuddy"]
 }

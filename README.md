@@ -21,13 +21,13 @@ ai-rss login
 
 ## 安装 AI 技能
 
-支持 `skills` 安装器的客户端，可以用 npx 从正式发布包安装：
+支持 `skills` 安装器的客户端，直接从 GitHub 安装技能：
 
 ```sh
-npx skills add https://registry.npmjs.org/@illli-studio/ai-rss/-/ai-rss-0.1.1.tgz --skill ai-rss
+npx skills add illli-studio/ai-rss --skill ai-rss
 ```
 
-技能直接调用 npm 正式版，无需下载源码或单独构建 CLI。WorkBuddy 可通过「添加技能 → 上传技能」导入技能目录或 ZIP。[技能说明](skills/ai-rss/SKILL.md)和[完整命令](skills/ai-rss/references/commands.md)也包含在发布包中。
+技能直接调用 npm 正式版，无需下载源码或单独构建 CLI。WorkBuddy 可通过「添加技能 → 上传技能」导入技能目录或 ZIP。[技能说明](skills/ai-rss/SKILL.md)和[完整命令](skills/ai-rss/references/commands.md)列出了全部操作。
 
 登录后可以直接说：「把这几个公众号加进竞品组，采集一轮。告诉我哪些没跑成功，再把最近的新品和调价动态按来源列出来。」
 
@@ -39,6 +39,10 @@ npx skills add https://registry.npmjs.org/@illli-studio/ai-rss/-/ai-rss-0.1.1.tg
 | 批量采集 | 「把这组公众号采一轮，告诉我哪些已经完成」 | 每个来源的任务 ID、排队状态或失败原因 |
 | 采集排障 | 「昨天为什么没更新？看看是排队、授权问题，还是已经采过」 | 最近任务、来源状态和采集账号状态；可重试符合条件的任务 |
 | 跨号监控 | 「把这几个竞品号编成一组，以后检查新品和调价的新增」 | 保存的来源与关键词；下次按检查位置继续 |
+| AI / 科技日报 | 「盯这组科技号，每天早上 9 点生成日报」 | 内置 200+ 关键词、可配置的过滤与时间、Markdown 和私有报告 RSS |
+| 舆情线索 | 「对比最近一周和上一周的安全争议和新品动态」 | 主题变化、关键词证据和原文；明确标注缺失或部分覆盖 |
+| 阅读量追踪 | 「估算这几篇的取数成本，再更新阅读和互动快照」 | 曼格云实时报价、带时间的阅读/点赞等快照、可比较的阅读变化 |
+| 知识库与推送 | 「把命中原文存到我的 ima，每天 9 点给群里发摘要」 | 按规则选择知识库/文件夹、重复导入去重、飞书群推送及投递状态 |
 | 历史检索 | 「找过去 30 天提到申报窗口的文章，逐条给出原文」 | 按来源、时间、关键词找到的归档，含出处与正文状态 |
 | 收藏与整理 | 「收藏这几篇，另外把新品公告整理成一份资料」 | 工作台收藏或可继续增删的专题；按需导出 Markdown / JSON |
 | 工具接入 | 「把查询结果交给我的脚本，日常更新继续在阅读器看」 | CLI 的 JSON 结果，以及核心服务的私有 RSS / Atom / JSON Feed 和 Open API |
@@ -52,6 +56,7 @@ npx skills add https://registry.npmjs.org/@illli-studio/ai-rss/-/ai-rss-0.1.1.tg
 | **Open API** | 按来源、时间、关键词分页读取结构化数据，包括标题、摘要、原文链接和 Markdown 正文 | [公众号 Open API 文档](https://rss.illli.cc/docs/api) |
 | **单篇 Markdown / HTML** | 保存已归档文章，带到笔记或后续编辑流程 | 工作台「文章归档」的文章详情 |
 | **CLI JSON / 合集 Markdown** | 脚本直接使用查询和操作结果；需要整理专题时，合集可导出 Markdown 或 JSON，保留来源、时间和原文链接 | `ai-rss article list`、`ai-rss collection export` 等 |
+| **日报 Markdown / 私有 RSS** | 按监控规则生成日报，可在阅读器订阅报告，也能把 Markdown 保存到文件 | `ai-rss report show`、`ai-rss intel feed` |
 
 Feed 的阅读器订阅链接由核心服务生成。用 [Feed 接入指南](https://rss.illli.cc/docs/wechat-rss)选择单号或聚合链接；无需安装 CLI，也不要把 AI 控制密钥当 Feed Key 使用。
 
@@ -97,9 +102,21 @@ ai-rss article star 123
 
 碰到同名公众号，`source add` 会返回候选项；先确认公众号，再用 `source add --fakeid <公众号标识> --title <名称>`。采集结果为排队时，可用 `job status` 或 `job wait` 跟进。采集受账号状态、队列和套餐额度影响；`ai-rss` 自身不另起采集服务，也不默认替用户定时推送。
 
-## 两个仓库怎么分
+## 定时监控、日报与投递
 
-- [核心服务](https://github.com/ITELMN/irss)：官网、工作台、授权采集、文章归档、私有 Feed、权限和 API。
-- 本仓库：CLI、JavaScript 客户端与中文技能。通过核心 API 执行操作，可用 `ai-rss audit` 回查最近的 AI 写操作。
+```sh
+ai-rss monitor create "科技号" --sources "MP_WXS_123,MP_WXS_456"
+ai-rss intel create "科技日报" --monitor "科技号" --preset ai-tech --at 09:00
+ai-rss intel feed "科技日报"
+ai-rss intel analyze "科技日报" --days 7
+```
+
+每天北京时间 9 点由服务生成报告，CLI 不用一直开着。规则可以选择自己的词、排除词或内置 AI / 科技词库；可配置多个规则，分别选择公众号、知识库和推送目标。[定时规则、ima、飞书、阅读量与舆情说明](skills/ai-rss/references/intelligence.md)含完整命令。没有第三方凭据时，监控、Markdown、报告 RSS 和主题分析仍可使用。
+
+阅读量使用曼格云独立取数，有费用；先用 `metrics quote` 获取实时报价，再明确提供 `--max-cost` 才能刷新。未知阅读数不会记成零，「10 万+」不参与精确增量计算。舆情报告列出命中文章和上下文，不把关键词当作已核实事实。
+
+## 体验期或会员到期
+
+CLI 和技能会提示到期并给出当前实例的套餐页链接。打开链接即可开通或续费；不需要重装技能。新的定时报告和第三方投递在到期时暂停。
 
 全部命令和参数见[中文完整命令手册](skills/ai-rss/references/commands.md)，或运行 `ai-rss --help`。本项目使用 MIT 许可证。

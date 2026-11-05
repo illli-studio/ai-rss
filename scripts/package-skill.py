@@ -11,6 +11,7 @@ paths = {
     'SKILL.md': root / 'skills/ai-rss/SKILL.md',
     'LICENSE': root / 'LICENSE',
     'references/commands.md': root / 'skills/ai-rss/references/commands.md',
+    'references/intelligence.md': root / 'skills/ai-rss/references/intelligence.md',
 }
 with ZipFile(target, 'w', compression=ZIP_DEFLATED) as archive:
     for name, source in paths.items():
