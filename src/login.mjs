@@ -102,8 +102,8 @@ export async function login({url, noBrowser=false}) {
       !Number.isInteger(request.interval) || request.interval<1 || request.interval>30) {
     throw new Error('服务返回了无效的 CLI 授权请求。');
   }
-  const browserUrl=baseUrl+'/dashboard#ai-login';
-  process.stderr.write('浏览器授权地址：'+browserUrl+'\n终端授权码：'+request.userCode+'\n只在你刚打开的 ai-rss 页面输入该码。等待授权…\n');
+  const browserUrl=baseUrl+'/dashboard#ai-login?'+new URLSearchParams({code:request.userCode});
+  process.stderr.write('浏览器授权地址：'+browserUrl+'\n请在网页登录或注册，再确认连接。仅在页面要求时手动输入授权码：'+request.userCode+'\n等待授权…\n');
   if (!noBrowser) openBrowser(browserUrl);
   const deadline=Date.now()+request.expiresIn*1000;
   let interval=request.interval;

@@ -15,9 +15,9 @@ npm install -g @illli-studio/ai-rss
 ai-rss login
 ```
 
-用邮箱和密码登录打开的 [ai-rss](https://rss.illli.cc/) 网页，输入终端显示的授权码并确认。网页已登录时直接授权即可，后续不用重复登录。首次采集前，在工作台绑定微信读书账号。
+打开终端给出的 [ai-rss](https://rss.illli.cc/) 授权链接，用邮箱登录或注册，然后点「确认连接」。新版 CLI 链接会自动带上授权码；旧版如提示输入，填写终端显示的授权码。首次采集前，在工作台绑定微信读书账号。
 
-不想全局安装 CLI，可以运行 `npx @illli-studio/ai-rss login`。
+直接用 AI 技能时，可以让它发起登录，把授权链接发给你；打开链接后完成登录或注册即可。不想全局安装 CLI，也可以运行 `npx @illli-studio/ai-rss login`。
 
 ## 安装 AI 技能
 
