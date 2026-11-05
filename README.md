@@ -1,20 +1,35 @@
-# ai-rss · 微信公众号自动化 CLI
+# ai-rss · 微信公众号订阅文章自动化
 
-**微信公众号自动化工具：批量采集、跨号监控、历史检索，接入 RSS 和 AI。**
+**订阅微信公众号，自动采集文章，跨号监控和检索，再把内容接入 RSS、脚本或 AI。**
 
 用终端、脚本或 WorkBuddy 操作自己的公众号订阅。可以查一个号今天为什么没更新，也可以让 AI 把加号、批量采集、排障、筛选和导出串起来。文章持续归档，保留来源与原文链接，同一份内容可以在网页、阅读器和 AI 工具里使用。
 
-[官网](https://rss.illli.cc/) · [接入指南](https://rss.illli.cc/docs/ai-rss) · [完整命令](skills/ai-rss/references/commands.md) · [WorkBuddy 技能](skills/ai-rss/SKILL.md)
+[官网](https://rss.illli.cc/) · [npm](https://www.npmjs.com/package/@illli-studio/ai-rss) · [完整命令](skills/ai-rss/references/commands.md) · [安装 AI 技能](#安装-ai-技能)
 
-**试用样例不需要账号，也不会联网：**
+## 安装与登录
+
+需要 Node.js 22 或更高版本。
 
 ```sh
-git clone https://github.com/illli-studio/ai-rss.git
-cd ai-rss
-node bin/ai-rss.mjs demo
+npm install -g @illli-studio/ai-rss
+ai-rss login
 ```
 
-样例用虚构数据演示多号订阅、采集排障、关键词监控和历史回查。只想看专题导出的样式，可以运行 `node bin/ai-rss.mjs demo collection`。
+用邮箱和密码登录打开的 [ai-rss](https://rss.illli.cc/) 网页，输入终端显示的授权码并确认。网页已登录时直接授权即可，后续不用重复登录。首次采集前，在工作台绑定微信读书账号。
+
+不想全局安装 CLI，可以运行 `npx @illli-studio/ai-rss login`。
+
+## 安装 AI 技能
+
+支持 `skills` 安装器的客户端，可以用 npx 从正式发布包安装：
+
+```sh
+npx skills add https://registry.npmjs.org/@illli-studio/ai-rss/-/ai-rss-0.1.1.tgz --skill ai-rss
+```
+
+技能直接调用 npm 正式版，无需下载源码或单独构建 CLI。WorkBuddy 可通过「添加技能 → 上传技能」导入技能目录或 ZIP。[技能说明](skills/ai-rss/SKILL.md)和[完整命令](skills/ai-rss/references/commands.md)也包含在发布包中。
+
+登录后可以直接说：「把这几个公众号加进竞品组，采集一轮。告诉我哪些没跑成功，再把最近的新品和调价动态按来源列出来。」
 
 ## 可以用它做什么
 
@@ -49,23 +64,6 @@ Feed 的阅读器订阅链接由核心服务生成。用 [Feed 接入指南](htt
 - **同一份归档服务不同工具。** 在网页看原文排版，用 RSS / Atom / JSON Feed 在阅读器跟更新，用 CLI 或 AI 做筛选和导出。工具包可以连自己的 Docker 实例，或连接支持这套接口的托管实例。
 - **中文说明，脚本友好。** 面向人的说明、示例和报错都用中文；命令、选项和 JSON 字段固定，方便在 WorkBuddy、终端和自动化工具之间复用。
 
-## 开始连接
-
-运行 `ai-rss login`，在浏览器登录 [ai-rss](https://rss.illli.cc/)，输入终端显示的授权码并确认。自托管用户可传 `--url http://127.0.0.1:5200`；远程终端用 `--no-browser` 手动打开授权页。授权后 CLI 保存本机登录，后续命令直接使用；`ai-rss logout` 会撤销此次登录签发的密钥。
-
-自动化也可以在工作台「Feed 与 API → 密钥管理」创建 AI 控制密钥，并同时设置 `AI_RSS_URL` 和 `AI_RSS_KEY`。密码和密钥都不要发到聊天。CLI 登录只连接工作空间，首次采集仍需在工作台绑定自己的微信读书账号。使用快速登录前，核心服务需要更新到支持它的版本。
-
-需要 Node.js 22 或更高版本。从 npm 安装：
-
-```sh
-npm install -g @illli-studio/ai-rss
-ai-rss login
-ai-rss status
-ai-rss overview
-```
-
-也可以运行 `npx @illli-studio/ai-rss demo` 直接体验，或在源码目录用 `node bin/ai-rss.mjs`。部署在自己机器上时，根地址可以用 `http://127.0.0.1:5200`；其他实例需要 HTTPS。
-
 ## 三个可以独立运行的用法
 
 下面的 ID 只用来示范。实际操作时，先从 `source add` 或 `source list` 的结果拿到真实订阅 ID。
@@ -98,14 +96,6 @@ ai-rss article star 123
 以后运行 `ai-rss collection save "新品与价格追踪" --from-monitor "竞品动态" --new`，会把本批新增存入同一合集。若 `hasMore` 为真，可以继续处理后续批次。历史查询用返回的 `nextOffset` 配合 `--offset` 翻页。只想看新增则运行 `monitor check "竞品动态" --new`，它也会推进检查位置；想先预览不推进，用 `--days`。新建监控组从当时已经入库的位置开始，旧文章用时间条件回查。关键词按「任一命中」筛选标题或正文。
 
 碰到同名公众号，`source add` 会返回候选项；先确认公众号，再用 `source add --fakeid <公众号标识> --title <名称>`。采集结果为排队时，可用 `job status` 或 `job wait` 跟进。采集受账号状态、队列和套餐额度影响；`ai-rss` 自身不另起采集服务，也不默认替用户定时推送。
-
-## 在 WorkBuddy 或其他 AI 助手里用
-
-导入 [微信公众号自动化技能](skills/ai-rss/SKILL.md)。若拿到的是带 CLI 的技能 ZIP，可以直接使用包内的 Node 脚本；只导入技能说明时，需先让助手运行命令的环境能找到 CLI。没配置密钥也可以先让它「演示一下能做什么」。
-
-维护者可以运行 `python scripts/package-skill.py`，在 `dist/` 生成带 CLI 的技能 ZIP；运行 `npm pack --pack-destination dist` 可以生成可本地安装的 npm 包。
-
-试着说：「把这几个公众号加进竞品组，采集完成后告诉我哪些号没跑成功，再把最近的新品和调价动态按来源列出来。」如果只想查一个任务、搜一篇旧文章，也可以单独下指令。
 
 ## 两个仓库怎么分
 

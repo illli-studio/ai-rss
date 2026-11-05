@@ -3,11 +3,11 @@ import { parseArgs } from 'node:util';
 import { setTimeout as wait } from 'node:timers/promises';
 import { controlPath as AI } from '../src/client.mjs';
 import { activeClient, login, logout } from '../src/login.mjs';
-import { demoReport, markdownReport } from '../src/report.mjs';
+import { markdownReport } from '../src/report.mjs';
+import pkg from '../package.json' with { type: 'json' };
 
-const HELP = `ai-rss — 微信公众号自动化 CLI
+const HELP = `ai-rss — 微信公众号订阅文章自动化
 
-  ai-rss demo [collection]                 免登录体验工作流或查看合集导出样例
   ai-rss login [--url 站点地址] [--no-browser] 在浏览器确认后登录
   ai-rss logout [--local-only]              退出本机并撤销此次登录的密钥
   ai-rss status                            验证密钥与实例
@@ -37,7 +37,7 @@ const HELP = `ai-rss — 微信公众号自动化 CLI
   ai-rss collection export <名称> [--format markdown|json]
 
 使用 ai-rss login 登录，或同时设置 AI_RSS_URL、AI_RSS_KEY。不要把密钥放在命令参数里。
-除示例与 Markdown 导出外，标准输出为 JSON。`;
+除 Markdown 导出和帮助信息外，操作结果输出为 JSON。`;
 
 const str = { type: 'string' }, bool = { type: 'boolean' };
 const id = encodeURIComponent;
@@ -80,11 +80,7 @@ async function waitForJob(api, jobId, timeout = 90) {
 
 async function main([group, action, ...args]) {
   if (!group || group === '--help' || group === '-h') return output(HELP);
-  if (group === '--version') return output('0.1.0');
-  if (group === 'demo') {
-    if (args.length || (action && action!=='collection')) throw new Error('用法：ai-rss demo [collection]');
-    return output(demoReport(action));
-  }
+  if (group === '--version') return output(pkg.version);
   if (group === 'login') {
     const [,v]=parse(action?[action,...args]:[],0,{url:str,'no-browser':bool});
     return output(await login({url:v.url,noBrowser:v['no-browser']}));

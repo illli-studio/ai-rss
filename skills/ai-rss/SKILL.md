@@ -1,13 +1,13 @@
 ---
 name: ai-rss
-description: 登录ai-rss 后，实际操作微信公众号订阅、批量采集、任务排障、跨号监控、历史检索、收藏和专题整理。也可指导用户接入 RSS、Atom、JSON Feed、OPML 和 Open API。
+description: 微信公众号订阅文章自动化。登录 ai-rss 后管理订阅、批量采集、排查任务、监控多号更新、检索和收藏历史文章、整理与导出。也可指导用户接入 RSS、Atom、JSON Feed、OPML 和 Open API。
 ---
 
-# ai-rss · 微信公众号自动化
+# ai-rss · 微信公众号订阅文章自动化
 
-用 `ai-rss` 执行用户授权的工作流。命令可用时直接运行；若技能包附带 CLI，改用 `node <技能目录>/bin/ai-rss.mjs`。先用 `--help` 查看真实命令。用户只想体验时运行 `demo`，明确结果是虚构示例。
+使用 npm 正式版 `npx --yes @illli-studio/ai-rss@0.1.1 <命令>` 执行用户授权的工作流。手册里的 `ai-rss` 是命令缩写，实际执行时替换成这个 npx 前缀。
 
-连接真实数据先运行 `status`。没有登录时，引导用户亲自运行 `ai-rss login`，在浏览器输入终端授权码并确认；无浏览器的终端用 `login --no-browser`。也可以由用户在运行环境同时配置 `AI_RSS_URL` 和 `AI_RSS_KEY`；不要让用户把密码或密钥发到聊天。微信读书采集授权仍由用户在工作台扫码完成，和 CLI 登录是两件事。
+先运行 `status` 检查登录。未登录时，引导用户运行 `npx @illli-studio/ai-rss login`，用邮箱密码登录网页，再输入终端授权码确认。不要让用户把密码或密钥发到聊天。首次采集需在工作台绑定微信读书账号。
 
 ## 完整能力
 
@@ -19,7 +19,7 @@ description: 登录ai-rss 后，实际操作微信公众号订阅、批量采集
 | 文章归档 | `article list`、`article show`、`article star`、`article unstar` |
 | 多号监控 | `monitor list`、`monitor create`（同名更新）、`monitor check`、`monitor delete` |
 | 专题合集 | `collection list`、`collection save`、`collection remove`、`collection delete`、`collection export` |
-| 离线体验与帮助 | `demo`、`demo collection`、`--help`、`--version` |
+| 命令帮助 | `--help`、`--version` |
 
 所有参数、输出、任务状态和操作影响见[完整命令手册](references/commands.md)。涉及 `--new`、取消任务、删除监控或移除合集内容时，先按手册核对操作影响。
 

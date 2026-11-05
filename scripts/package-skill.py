@@ -1,4 +1,4 @@
-"""打包 WorkBuddy 等工具可导入的本地技能，包含同版本的 CLI。"""
+"""打包可导入 WorkBuddy 的技能说明；执行时调用 npm 正式版。"""
 import json
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
@@ -10,10 +10,6 @@ target.parent.mkdir(exist_ok=True)
 paths = {
     'SKILL.md': root / 'skills/ai-rss/SKILL.md',
     'LICENSE': root / 'LICENSE',
-    'bin/ai-rss.mjs': root / 'bin/ai-rss.mjs',
-    'src/client.mjs': root / 'src/client.mjs',
-    'src/report.mjs': root / 'src/report.mjs',
-    'src/login.mjs': root / 'src/login.mjs',
     'references/commands.md': root / 'skills/ai-rss/references/commands.md',
 }
 with ZipFile(target, 'w', compression=ZIP_DEFLATED) as archive:

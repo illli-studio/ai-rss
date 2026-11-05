@@ -1,6 +1,6 @@
 # ai-rss 完整能力与命令
 
-所有命令都以 `ai-rss` 开头。使用技能 ZIP 内的脚本时，把它替换成 `node <技能目录>/bin/ai-rss.mjs`。名称或关键词含空格时加引号；列表可用逗号分隔。实际操作时使用查询返回的真实 ID，不从显示名称推断 ID。
+所有示例都以 `ai-rss` 开头。技能执行时改用 npm 正式版前缀 `npx --yes @illli-studio/ai-rss@0.1.1`。名称或关键词含空格时加引号；列表可用逗号分隔。实际操作时使用查询返回的真实 ID，不从显示名称推断 ID。
 
 ## 登录、退出、概览与审计
 
@@ -65,11 +65,10 @@
 | `ai-rss collection delete "合集名"` | 删除合集，保留其中文章的原始归档。 |
 | `ai-rss collection export "合集名" [--format markdown\|json]` | 导出条目、摘要、来源、时间和原文链接；默认 Markdown，输出到终端。 |
 
-## 离线体验与数据接入
+## 命令帮助与数据接入
 
-- `ai-rss demo` 用虚构样例演示订阅、批量采集、排障和跨号检查；`ai-rss demo collection` 看专题导出。两者均不联网。
 - `ai-rss --help`（也可用 `-h` 或不带命令运行）列出命令；`ai-rss --version` 查看 CLI 版本。
-- 大多数命令返回 JSON；示例与 Markdown 导出是文本。终端脚本可按退出状态和具体任务结果分别判断。
+- 大多数命令返回 JSON；帮助和 Markdown 导出是文本。终端脚本可按退出状态和具体任务结果分别判断。
 - **RSS 2.0、Atom 1.0、JSON Feed 1.1**：工作台「Feed 与 API → 阅读器订阅」复制单号或全量聚合私有链接；阅读器持续获取已归档图文、原文链接与发布时间。**OPML 2.0** 导出订阅清单用于换阅读器。
 - **Open API** 返回分页的结构化文章、摘要与 Markdown 正文；**单篇 Markdown / HTML** 在工作台文章详情导出。CLI 没有读取或重置私有 Feed Key 的命令，AI 控制密钥不能用来拼接 Feed 链接。
 
