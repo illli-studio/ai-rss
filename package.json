@@ -1,0 +1,16 @@
+{
+  "name": "ai-rss",
+  "version": "0.1.0",
+  "description": "微信公众号自动化 CLI 与 AI 技能：管理订阅、批量采集、任务排障、跨号监控和原文检索",
+  "type": "module",
+  "bin": { "ai-rss": "bin/ai-rss.mjs" },
+  "exports": "./src/client.mjs",
+  "files": ["bin", "src", "skills", "README.md", "LICENSE"],
+  "engines": { "node": ">=22" },
+  "scripts": { "test": "node --test" },
+  "license": "MIT",
+  "homepage": "https://rss.illli.cc/",
+  "repository": { "type": "git", "url": "git+https://github.com/illli-studio/ai-rss.git" },
+  "bugs": { "url": "https://github.com/illli-studio/ai-rss/issues" },
+  "keywords": ["wechat", "rss", "公众号", "monitoring", "cli", "workbuddy"]
+}
