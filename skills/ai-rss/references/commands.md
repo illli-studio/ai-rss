@@ -24,7 +24,7 @@
 | `ai-rss source add --fakeid ID --title "公众号名称"` | 用已确认的公众号标识订阅，无需再次搜索。 |
 | `ai-rss source pause 订阅ID` | 暂停后续采集并取消该来源排队中的任务；保留原归档。 |
 | `ai-rss source resume 订阅ID` | 恢复来源采集，受套餐额度限制。 |
-| `ai-rss source delete 订阅ID --yes` | 删除订阅及其全部归档、阅读和收藏记录，取消该来源排队中的任务；单号 Feed 随之失效。若正在采集，等待结束后再删除。重新订阅后可重新采集。 |
+| `ai-rss source delete 订阅ID [订阅ID ...] --yes` | 删除一个或多个订阅及其全部归档、阅读和收藏记录，取消对应排队任务并使单号 Feed 失效。每批最多 400 个订阅；有订阅不存在或正在采集时，整批不删除。重新订阅后可重新采集。 |
 | `ai-rss source interval 订阅ID --minutes 分钟` | 修改后续采集间隔；服务按套餐限制调整，以返回的间隔为准。 |
 | `ai-rss fetch run --source "ID1,ID2"` | 一次提交多个已订阅来源，返回每个来源的任务 ID 或错误。入队不等于采集完成；部分失败时仍保留成功项。 |
 | `ai-rss job status 任务ID` | 查看排队、运行、成功、失败或取消状态，以及结果、错误和重试信息。 |
@@ -42,9 +42,11 @@
 | `ai-rss article show 文章ID` | 查看标题、来源、发布时间、原文链接、已归档正文及完整状态。 |
 | `ai-rss article star 文章ID` | 收藏文章。 |
 | `ai-rss article unstar 文章ID` | 取消收藏，不影响文章归档或已保存的合集。 |
-| `ai-rss article delete 文章ID --yes` | 删除单篇归档及阅读、收藏、合集引用和阅读量快照；不影响同订阅的其他文章，后续采集也不会重新归档此链接。 |
+| `ai-rss article delete 文章ID [文章ID ...] --yes` | 删除选中的归档及阅读、收藏、合集引用和阅读量快照，后续采集不会重新归档这些链接。每批最多 100 篇；有文章不存在时整批不删除。 |
 
 删除仅作用于当前工作空间。已生成的报告、已导出的文件和第三方平台收到的副本不会随之删除。删除订阅后，原监控规则仍保留，重新订阅同一个公众号后可继续匹配。
+
+批量示例：`ai-rss source delete MP_WXS_123 MP_WXS_456 --yes`；`ai-rss article delete 42 43 --yes`。多个 ID 用空格分隔，CLI 会去重后发起一次批量请求。
 
 ## 多号监控
 

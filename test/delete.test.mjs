@@ -9,10 +9,12 @@ import { promisify } from 'node:util';
 const run = promisify(execFile);
 const cli = fileURLToPath(new URL('../bin/ai-rss.mjs', import.meta.url));
 
-test('delete commands require confirmation and send scoped DELETE requests', async (t) => {
+test('delete commands require confirmation and send one request per deletion', async (t) => {
   const requests = [];
-  const server = createServer((request,response) => {
-    requests.push([request.method,request.url]);
+  const server = createServer(async (request,response) => {
+    let body='';
+    for await (const chunk of request) body+=chunk;
+    requests.push([request.method,request.url,body ? JSON.parse(body) : null]);
     response.writeHead(200,{'Content-Type':'application/json'}).end(JSON.stringify({ok:true}));
   });
   server.listen(0,'127.0.0.1');
@@ -24,10 +26,17 @@ test('delete commands require confirmation and send scoped DELETE requests', asy
 
   await assert.rejects(call('source','delete','MP_WXS_123'),/--yes/);
   await assert.rejects(call('article','delete','42'),/--yes/);
+  await assert.rejects(call('article','delete','42','43'),/--yes/);
   await assert.rejects(call('article','delete','-1','--yes'));
+  await assert.rejects(call('article','delete','42','invalid','--yes'),/文章 ID/);
+  await assert.rejects(call('article','delete',...Array.from({length:101},(_,i)=>String(i+1)),'--yes'),/100/);
   assert.deepEqual(requests,[]);
   assert.deepEqual(JSON.parse((await call('source','delete','MP_WXS_123','--yes')).stdout),{ok:true});
   assert.deepEqual(JSON.parse((await call('article','delete','42','--yes')).stdout),{ok:true});
-  assert.deepEqual(requests,[['DELETE','/api/v1/subscriptions/MP_WXS_123/purge'],
-    ['DELETE','/api/v1/articles/42']]);
+  assert.deepEqual(JSON.parse((await call('source','delete','MP_WXS_123','MP_WXS_456','--yes')).stdout),{ok:true});
+  assert.deepEqual(JSON.parse((await call('article','delete','42','43','42','--yes')).stdout),{ok:true});
+  assert.deepEqual(requests,[['DELETE','/api/v1/subscriptions/MP_WXS_123/purge',null],
+    ['DELETE','/api/v1/articles/42',null],
+    ['POST','/api/v1/subscriptions/batch-delete',{ids:['MP_WXS_123','MP_WXS_456']}],
+    ['POST','/api/v1/articles/batch-delete',{ids:[42,43]}]]);
 });

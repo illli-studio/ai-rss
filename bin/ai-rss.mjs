@@ -20,7 +20,7 @@ const HELP = `ai-rss — 微信公众号订阅文章自动化
   ai-rss source add --fakeid ID --title 名称
   ai-rss source pause <订阅ID>
   ai-rss source resume <订阅ID>
-  ai-rss source delete <订阅ID> --yes
+  ai-rss source delete <订阅ID> [订阅ID ...] --yes
   ai-rss source interval <订阅ID> --minutes <分钟>
   ai-rss fetch run --source <订阅ID,订阅ID>
   ai-rss job status|cancel|retry <任务ID>
@@ -28,7 +28,7 @@ const HELP = `ai-rss — 微信公众号订阅文章自动化
   ai-rss article list [--source ID] [--keyword 词] [--days 天] [--page 页] [--limit 篇]
   ai-rss article show <文章ID>
   ai-rss article star|unstar <文章ID>
-  ai-rss article delete <文章ID> --yes
+  ai-rss article delete <文章ID> [文章ID ...] --yes
   ai-rss monitor list
   ai-rss monitor create <名称> --sources <订阅ID,订阅ID> [--keywords <词,词>]
   ai-rss monitor check <名称> [--new | --days 天] [--limit 篇] [--offset 篇]
@@ -74,6 +74,13 @@ const number = (value, min, max, label) => {
   return result;
 };
 const startTime = (days) => days === undefined ? undefined : Date.now()-number(days,1,3650,'天数')*86_400_000;
+const deletionIds = (args,{label,max,warning,normalize}) => {
+  const { values,positionals }=parseArgs({args,options:{yes:bool},allowPositionals:true,strict:true});
+  if (!values.yes) throw new Error(warning+'核对目标 ID 后加 --yes 执行。');
+  const ids=[...new Set(positionals.map(normalize))];
+  if (!ids.length || ids.length>max) throw new Error(label+'每次须提供 1–'+max+' 个 ID。');
+  return ids;
+};
 const output = (data) => console.log(typeof data === 'string' ? data : JSON.stringify(data,null,2));
 const opt = (method, body) => ({ method, body });
 const checkOptions = (v) => {
@@ -150,9 +157,15 @@ async function main([group, action, ...args]) {
       return output(await send('/api/v1/subscriptions/batch','POST',{ ids:[source],action }));
     }
     case 'source delete': {
-      const [source,v] = parse(args,1,{yes:bool});
-      if (!v.yes) throw new Error('删除订阅也会删除该公众号的全部归档文章。核对订阅 ID 后加 --yes 执行；如需保留归档，请使用 source pause。');
-      return output(await send('/api/v1/subscriptions/'+id(source)+'/purge','DELETE'));
+      const ids=deletionIds(args,{label:'删除订阅',max:400,
+        warning:'删除订阅也会删除该公众号的全部归档文章。如需保留归档，请使用 source pause。',
+        normalize:value=>{
+          if (!value.trim() || value.length>40) throw new Error('订阅 ID 无效，请使用 source list 返回的 ID。');
+          return value;
+        }});
+      return output(ids.length===1
+        ? await send('/api/v1/subscriptions/'+id(ids[0])+'/purge','DELETE')
+        : await send('/api/v1/subscriptions/batch-delete','POST',{ids}));
     }
     case 'source interval': {
       const [source,v]=parse(args,1,{minutes:str});
@@ -189,9 +202,11 @@ async function main([group, action, ...args]) {
       return output(await get('/api/v1/articles/'+number(article,1,Number.MAX_SAFE_INTEGER,'文章 ID')));
     }
     case 'article delete': {
-      const [article,v] = parse(args,1,{yes:bool});
-      if (!v.yes) throw new Error('删除后，后续采集不会重新归档此链接。核对文章 ID 后加 --yes 执行。');
-      return output(await send('/api/v1/articles/'+number(article,1,Number.MAX_SAFE_INTEGER,'文章 ID'),'DELETE'));
+      const ids=deletionIds(args,{label:'删除文章',max:100,warning:'删除后，后续采集不会重新归档这些链接。',
+        normalize:value=>number(value,1,Number.MAX_SAFE_INTEGER,'文章 ID')});
+      return output(ids.length===1
+        ? await send('/api/v1/articles/'+ids[0],'DELETE')
+        : await send('/api/v1/articles/batch-delete','POST',{ids}));
     }
     case 'article star':
     case 'article unstar': {
