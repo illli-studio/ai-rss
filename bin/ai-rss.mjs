@@ -20,6 +20,7 @@ const HELP = `ai-rss — 微信公众号订阅文章自动化
   ai-rss source add --fakeid ID --title 名称
   ai-rss source pause <订阅ID>
   ai-rss source resume <订阅ID>
+  ai-rss source delete <订阅ID> --yes
   ai-rss source interval <订阅ID> --minutes <分钟>
   ai-rss fetch run --source <订阅ID,订阅ID>
   ai-rss job status|cancel|retry <任务ID>
@@ -27,6 +28,7 @@ const HELP = `ai-rss — 微信公众号订阅文章自动化
   ai-rss article list [--source ID] [--keyword 词] [--days 天] [--page 页] [--limit 篇]
   ai-rss article show <文章ID>
   ai-rss article star|unstar <文章ID>
+  ai-rss article delete <文章ID> --yes
   ai-rss monitor list
   ai-rss monitor create <名称> --sources <订阅ID,订阅ID> [--keywords <词,词>]
   ai-rss monitor check <名称> [--new | --days 天] [--limit 篇] [--offset 篇]
@@ -147,6 +149,11 @@ async function main([group, action, ...args]) {
       const [source] = parse(args,1);
       return output(await send('/api/v1/subscriptions/batch','POST',{ ids:[source],action }));
     }
+    case 'source delete': {
+      const [source,v] = parse(args,1,{yes:bool});
+      if (!v.yes) throw new Error('删除订阅也会删除该公众号的全部归档文章。核对订阅 ID 后加 --yes 执行；如需保留归档，请使用 source pause。');
+      return output(await send('/api/v1/subscriptions/'+id(source)+'/purge','DELETE'));
+    }
     case 'source interval': {
       const [source,v]=parse(args,1,{minutes:str});
       return output(await send('/api/v1/subscriptions/'+id(source),'PATCH',
@@ -180,6 +187,11 @@ async function main([group, action, ...args]) {
     case 'article show': {
       const [article] = parse(args,1);
       return output(await get('/api/v1/articles/'+number(article,1,Number.MAX_SAFE_INTEGER,'文章 ID')));
+    }
+    case 'article delete': {
+      const [article,v] = parse(args,1,{yes:bool});
+      if (!v.yes) throw new Error('删除后，后续采集不会重新归档此链接。核对文章 ID 后加 --yes 执行。');
+      return output(await send('/api/v1/articles/'+number(article,1,Number.MAX_SAFE_INTEGER,'文章 ID'),'DELETE'));
     }
     case 'article star':
     case 'article unstar': {

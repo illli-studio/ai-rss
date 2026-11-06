@@ -1,6 +1,6 @@
 # 微信公众号情报：定时监控、阅读量与投递
 
-技能安装：`npx skills add illli-studio/ai-rss --skill ai-rss`。运行时使用 `npx --yes @illli-studio/ai-rss@0.2.0` 替换下文的 `ai-rss` 前缀。
+安装与运行方式见 [技能入口](../SKILL.md)。
 
 ## 先建监控组，再订日报
 

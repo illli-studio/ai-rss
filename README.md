@@ -82,6 +82,8 @@ ai-rss fetch run --source "MP_WXS_123,MP_WXS_456"
 ai-rss job wait "<上一步返回的任务ID>" --timeout 120
 ```
 
+CLI 0.2.2 起可用 `ai-rss source delete <订阅ID> --yes` 删除订阅及其归档，或用 `ai-rss article delete <文章ID> --yes` 删除单篇并阻止重新归档。只想停止采集并保留归档时，用 `source pause`。删除需要同步升级 irss 核心服务。
+
 **监控多个来源：**
 
 ```sh
