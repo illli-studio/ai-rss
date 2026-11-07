@@ -29,6 +29,7 @@ const HELP = `ai-rss — 微信公众号订阅文章自动化
   ai-rss article show <文章ID>
   ai-rss article star|unstar <文章ID>
   ai-rss article delete <文章ID> [文章ID ...] --yes
+  ai-rss article delete --all [--source ID] [--keyword 词] [--days 天] --yes
   ai-rss monitor list
   ai-rss monitor create <名称> --sources <订阅ID,订阅ID> [--keywords <词,词>]
   ai-rss monitor check <名称> [--new | --days 天] [--limit 篇] [--offset 篇]
@@ -74,9 +75,10 @@ const number = (value, min, max, label) => {
   return result;
 };
 const startTime = (days) => days === undefined ? undefined : Date.now()-number(days,1,3650,'天数')*86_400_000;
-const deletionIds = (args,{label,max,warning,normalize}) => {
-  const { values,positionals }=parseArgs({args,options:{yes:bool},allowPositionals:true,strict:true});
-  if (!values.yes) throw new Error(warning+'核对目标 ID 后加 --yes 执行。');
+const articleFilters = { source:str,keyword:str,days:str };
+const articleQuery = (v) => ({ sourceId:v.source,q:v.keyword,since:startTime(v.days) });
+const deletionIds = (positionals,yes,{label,max,warning,normalize}) => {
+  if (!yes) throw new Error(warning+'核对目标 ID 后加 --yes 执行。');
   const ids=[...new Set(positionals.map(normalize))];
   if (!ids.length || ids.length>max) throw new Error(label+'每次须提供 1–'+max+' 个 ID。');
   return ids;
@@ -157,7 +159,8 @@ async function main([group, action, ...args]) {
       return output(await send('/api/v1/subscriptions/batch','POST',{ ids:[source],action }));
     }
     case 'source delete': {
-      const ids=deletionIds(args,{label:'删除订阅',max:400,
+      const { values,positionals }=parseArgs({args,options:{yes:bool},allowPositionals:true,strict:true});
+      const ids=deletionIds(positionals,values.yes,{label:'删除订阅',max:400,
         warning:'删除订阅也会删除该公众号的全部归档文章。如需保留归档，请使用 source pause。',
         normalize:value=>{
           if (!value.trim() || value.length>40) throw new Error('订阅 ID 无效，请使用 source list 返回的 ID。');
@@ -192,8 +195,8 @@ async function main([group, action, ...args]) {
       return output(await get(jobPath(job)));
     }
     case 'article list': {
-      const [,v] = parse(args,0,{ source:str,keyword:str,days:str,page:str,limit:str });
-      return output(await get('/open-api/articles',{ sourceId:v.source,q:v.keyword,since:startTime(v.days),
+      const [,v] = parse(args,0,{ ...articleFilters,page:str,limit:str });
+      return output(await get('/open-api/articles',{ ...articleQuery(v),
         page:v.page===undefined ? undefined : number(v.page,1,1_000_000,'页码'),
         pageSize:v.limit===undefined ? 20 : number(v.limit,1,100,'篇数') }));
     }
@@ -202,11 +205,27 @@ async function main([group, action, ...args]) {
       return output(await get('/api/v1/articles/'+number(article,1,Number.MAX_SAFE_INTEGER,'文章 ID')));
     }
     case 'article delete': {
-      const ids=deletionIds(args,{label:'删除文章',max:100,warning:'删除后，后续采集不会重新归档这些链接。',
+      const path='/api/v1/articles';
+      const { values,positionals }=parseArgs({args,options:{...articleFilters,all:bool,yes:bool},allowPositionals:true,strict:true});
+      if (values.all) {
+        if (positionals.length) throw new Error('--all 不能与文章 ID 同时使用。');
+        if (!values.yes) throw new Error('请先用 article list 核对范围，再加 --yes 确认删除全部匹配文章。');
+        for (const option of ['source','keyword']) {
+          if (values[option]!==undefined) values[option]=required(values[option],option);
+        }
+        const { ids }=await get(path,{...articleQuery(values),idsOnly:1});
+        if (!Array.isArray(ids)) throw new Error('当前 irss 实例未返回全选结果，请升级核心服务。');
+        if (!ids.length) return output({ok:true,deletedArticles:0});
+        return output(await send(path+'/batch-delete','POST',{ids}));
+      }
+      if (Object.keys(articleFilters).some(option=>values[option]!==undefined)) {
+        throw new Error('筛选参数须与 --all 一起使用。');
+      }
+      const ids=deletionIds(positionals,values.yes,{label:'删除文章',max:100,warning:'删除后，后续采集不会重新归档这些链接。',
         normalize:value=>number(value,1,Number.MAX_SAFE_INTEGER,'文章 ID')});
       return output(ids.length===1
-        ? await send('/api/v1/articles/'+ids[0],'DELETE')
-        : await send('/api/v1/articles/batch-delete','POST',{ids}));
+        ? await send(path+'/'+ids[0],'DELETE')
+        : await send(path+'/batch-delete','POST',{ids}));
     }
     case 'article star':
     case 'article unstar': {

@@ -84,6 +84,8 @@ ai-rss job wait "<上一步返回的任务ID>" --timeout 120
 
 CLI 0.2.2 起支持单条删除，0.2.3 起可用空格传入多个 ID：`ai-rss source delete MP_WXS_123 MP_WXS_456 --yes` 批量删除订阅及其归档，`ai-rss article delete 42 43 --yes` 批量删除文章并阻止重新归档。只想停止采集并保留归档时，用 `source pause`。删除需要同步升级 irss 核心服务。
 
+CLI 0.2.4 起支持 `ai-rss article delete --all --yes` 删除当前工作空间的全部归档文章。可加 `--source`、`--keyword` 或 `--days` 缩小范围，先用 `article list` 核对同一筛选范围。该用法需要支持跨页全选的核心服务。
+
 **监控多个来源：**
 
 ```sh
