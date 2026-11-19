@@ -1,6 +1,6 @@
 {
   "name": "wechat-analyst-expert",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An evidence-based analyst for a user's subscribed WeChat Official Accounts.",
   "author": {"name":"illli-studio","email":"3313266046@qq.com"},
   "expertType": "agent",
@@ -14,9 +14,9 @@
   "avatar": "avatars/analyst.png",
   "categoryId": "04-DataAI",
   "tags": [{"zh":"公众号运营","en":"WeChat Operations"},{"zh":"对标分析","en":"Benchmarking"},{"zh":"文章表现","en":"Article Performance"}],
-  "defaultInitPrompt": {"zh":"从我的订阅里找 3 个和目标公众号选题最接近的号。","en":"Find three subscriptions whose editorial topics most closely match my target account."},
+  "defaultInitPrompt": {"zh":"从我的订阅里找 3 个和目标公众号选题最接近的号，附双方代表文章的可点击原文链接。","en":"Find three subscriptions whose editorial topics most closely match my target account, with clickable original links from both sides."},
   "quickPrompts": [
-    {"zh":"从我的订阅里找 3 个和目标公众号选题最接近的号。","en":"Find three subscriptions whose editorial topics most closely match my target account."},
+    {"zh":"从我的订阅里找 3 个和目标公众号选题最接近的号，附双方代表文章的可点击原文链接。","en":"Find three subscriptions whose editorial topics most closely match my target account, with clickable original links from both sides."},
     {"zh":"目标公众号近 30 天哪些文章明显高于平时？列出阅读量和比较依据。","en":"Which articles from my target account outperformed its norm in the last 30 days? Show readership and baselines."},
     {"zh":"对比两个公众号最近的选题，各举两篇原文说明差异。","en":"Compare the recent editorial focus of two accounts and cite two articles from each."}
   ],
