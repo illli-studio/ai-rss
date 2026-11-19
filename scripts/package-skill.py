@@ -69,7 +69,13 @@ elif workbuddy:
         'wechat-daily-brief': 'Build a daily briefing from your WeChat subscriptions with links to the original articles.',
         'wechat-competitor-monitor': 'Compare updates from competing brands across your subscribed WeChat accounts.',
     }
-    metadata = dict(description_en=english[name], display_name=title, display_name_en=en_title, description_zh=description,
+    prompts_en = {
+        'wechat-data-analyst': 'Find three comparable subscriptions and articles that outperformed their account baseline.',
+        'wechat-article-search': 'Find articles about artificial intelligence from my subscriptions in the past seven days.',
+        'wechat-daily-brief': 'Summarize today’s updates from my subscriptions with links to the original articles.',
+        'wechat-competitor-monitor': 'Compare last week’s product launches and price changes from two brands I subscribe to.',
+    }
+    metadata = dict(examples_en=[prompts_en[name]], description_en=english[name], display_name=title, display_name_en=en_title, description_zh=description,
                     examples_zh=[example], version=version, author='illli-studio')
     fields = '\n'.join(f'{key}: {json.dumps(value, ensure_ascii=False)}' for key, value in metadata.items())
     skill = f'---{frontmatter}{fields}\n---{body}\n## 本地验证\n\n运行 `node --test scripts/verify.mjs` 可用模拟数据验证本技能的工作流，无需登录。\n'
