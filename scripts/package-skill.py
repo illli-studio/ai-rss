@@ -82,8 +82,11 @@ elif workbuddy:
 if workbuddy or name in focused:
     paths.update({'package.json': root/'package.json', 'bin/ai-rss.mjs': root/'bin/ai-rss.mjs'})
     paths.update({f'src/{source.name}': source for source in sorted((root/'src').glob('*.mjs'))})
+archive_name = 'irss-wechat-article-search' if workbuddy and name == 'wechat-article-search' else name
+if archive_name != name:
+    skill = skill.replace(f'name: {name}\n', f'name: {archive_name}\n', 1)
 with ZipFile(target, 'w', compression=ZIP_DEFLATED) as archive:
-    archive.writestr(f'{name}/SKILL.md', skill)
+    archive.writestr(f'{archive_name}/SKILL.md', skill)
     for relative, source in paths.items():
-        archive.write(source, f'{name}/{relative}')
+        archive.write(source, f'{archive_name}/{relative}')
 print(target)

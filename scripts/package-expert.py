@@ -26,5 +26,6 @@ with tempfile.TemporaryDirectory() as temporary:
             archive.write(folder/relative, f'{name}/{Path(relative).as_posix()}')
         archive.write(root/'LICENSE', f'{name}/LICENSE')
         for file in skill.namelist():
-            archive.writestr(f'{name}/skills/{file}', skill.read(file))
+            relative = file.split('/', 1)[1]
+            archive.writestr(f'{name}/skills/{Path(skill_path).name}/{relative}', skill.read(file))
 print(output)
