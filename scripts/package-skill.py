@@ -10,7 +10,7 @@ parser = argparse.ArgumentParser(description=__doc__)
 focused = {
     'wechat-data-analyst': ('微信公众号数据分析师', 'WeChat Official Account Analyst',
         '从我的订阅里找三个对标号，再分析有哪些文章的阅读量明显高于同号常态。'),
-    'wechat-article-search': ('微信公众号文章搜索', 'WeChat Article Search',
+    'wechat-article-search': ('微信公众号订阅文章搜索', 'Subscribed WeChat Article Search',
         '查找我的订阅里最近 7 天提到人工智能的公众号文章。'),
     'wechat-daily-brief': ('微信公众号每日简报', 'WeChat Daily Brief',
         '把我订阅的公众号今天的更新整理成一份带原文的简报。'),
