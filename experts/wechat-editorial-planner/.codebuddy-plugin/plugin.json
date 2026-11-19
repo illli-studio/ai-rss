@@ -1,5 +1,5 @@
 {
-  "name": "wechat-editorial-planner",
+  "name": "irss-wechat-editorial-planner",
   "version": "1.0.1",
   "description": "Plan an evidence-based editorial calendar for the following week using subscribed WeChat accounts.",
   "author": {
@@ -7,7 +7,7 @@
     "email": "3313266046@qq.com"
   },
   "expertType": "agent",
-  "plugin": "wechat-editorial-planner",
+  "plugin": "irss-wechat-editorial-planner",
   "agentName": "wechat-editorial-planner",
   "agents": [
     "./agents/wechat-editorial-planner.md"

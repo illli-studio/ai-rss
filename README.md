@@ -27,7 +27,7 @@ ai-rss login
 
 **微信公众号选题策划 · 笺禾** 从现有 IRSS 订阅中选择参考号，按下一自然周输出每日排期、专题排期或每周三篇精排。每个选题附切入角度、推荐理由和参考原文。
 
-[下载选题策划专家 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-editorial-planner-1.0.1.zip) · [使用与构建说明](experts/wechat-editorial-planner/README.md)
+[下载选题策划专家 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/irss-wechat-editorial-planner-1.0.1.zip) · [使用与构建说明](experts/wechat-editorial-planner/README.md)
 
 **微信公众号数据分析师 · 知衡** 是独立的 WorkBuddy 单专家包。三个快捷问题对应订阅内对标推荐、同账号高表现文章分析、双账号选题对比。专家内置分析技能，沿用本机 IRSS 登录和订阅。使用 Node.js 22 或更新版本。
 
