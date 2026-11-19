@@ -26,7 +26,7 @@ variant = 'workbuddy' if workbuddy else 'skill'
 target = args.output_dir / f'{name}-{variant}-{version}.zip'
 target.parent.mkdir(parents=True, exist_ok=True)
 folder = root/'skills'/name
-paths = {'LICENSE': root/'LICENSE'}
+paths = {'LICENSE': root/'LICENSE', 'assets/icon.png': folder/'assets/icon.png'}
 paths.update({p.relative_to(folder).as_posix(): p for p in (folder/'references').glob('*.md')})
 skill = (folder/'SKILL.md').read_text(encoding='utf-8')
 if workbuddy and name == 'ai-rss':
@@ -63,7 +63,13 @@ elif workbuddy:
     _, frontmatter, body = skill.split('---', 2)
     description = next(line.removeprefix('description: ') for line in frontmatter.splitlines()
                        if line.startswith('description: '))
-    metadata = dict(display_name=title, display_name_en=en_title, description_zh=description,
+    english = {
+        'wechat-data-analyst': 'Recommend comparable accounts and identify high-performing articles using archived evidence.',
+        'wechat-article-search': 'Search archived articles across your subscribed WeChat accounts and find original links.',
+        'wechat-daily-brief': 'Build a daily briefing from your WeChat subscriptions with links to the original articles.',
+        'wechat-competitor-monitor': 'Compare updates from competing brands across your subscribed WeChat accounts.',
+    }
+    metadata = dict(description_en=english[name], display_name=title, display_name_en=en_title, description_zh=description,
                     examples_zh=[example], version=version, author='illli-studio')
     fields = '\n'.join(f'{key}: {json.dumps(value, ensure_ascii=False)}' for key, value in metadata.items())
     skill = f'---{frontmatter}{fields}\n---{body}\n## 本地验证\n\n运行 `node --test scripts/verify.mjs` 可用模拟数据验证本技能的工作流，无需登录。\n'

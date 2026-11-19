@@ -21,6 +21,7 @@
 | `ai-rss source list` | 查看已有来源、订阅 ID、启用状态、采集计划与最近结果。 |
 | `ai-rss source search "公众号名称或文章链接"` | 提交来源搜索并等待结果；只返回候选，不添加订阅。 |
 | `ai-rss source add "公众号名称或文章链接"` | 唯一匹配时订阅；同名或不明确时返回候选，请用户确认。 |
+| `ai-rss source add --job 搜索任务ID --pick 序号` | 使用上次搜索返回的候选序号添加，无需再次检索。 |
 | `ai-rss source add --fakeid ID --title "公众号名称"` | 用已确认的公众号标识订阅，无需再次搜索。 |
 | `ai-rss source pause 订阅ID` | 暂停后续采集并取消该来源排队中的任务；保留原归档。 |
 | `ai-rss source resume 订阅ID` | 恢复来源采集，受套餐额度限制。 |

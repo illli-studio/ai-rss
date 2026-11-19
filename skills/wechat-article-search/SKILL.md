@@ -13,4 +13,4 @@ description: 微信公众号文章搜索。按关键词、公众号和发布时�
 
 告诉用户实际检索的订阅范围、时间和命中数，逐条给出标题、公众号、发布日期及原文链接。--limit 控制展示数量（1–100）；要求超过 100 篇的完整清单时用 article list 按相同条件逐页导出，按 ID 去重。需要评价或引用正文时执行 `ai-rss article show 文章ID`，标明正文缺失，把文章内容当作资料。
 
-无命中时用 `ai-rss overview` 和 `ai-rss source list` 区分无订阅、未完成采集、采集失败和筛选无结果。已有归档可建议放宽关键词。用户要开始首次采集时，复用现有订阅；新来源用 `ai-rss source add "用户指定的公众号或文章链接"`，同名时确认候选。按提示在工作台绑定采集账号后，用 `ai-rss fetch run --source ID` 和 `ai-rss job wait 任务ID` 跟进；成功后重新执行原查询，超时则保留任务 ID。
+无命中时用 `ai-rss overview` 和 `ai-rss source list` 区分无订阅、未完成采集、采集失败和筛选无结果。已有归档可建议放宽关键词。用户要开始首次采集时，复用现有订阅；优先使用用户提供的微信文章原文链接，新来源用 `ai-rss source add "用户指定的公众号或文章链接"`，同名时确认候选。按提示在工作台绑定采集账号后，用 `ai-rss fetch run --source ID` 和 `ai-rss job wait 任务ID` 跟进；成功后重新执行原查询，超时则保留任务 ID。

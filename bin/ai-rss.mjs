@@ -20,6 +20,7 @@ const HELP = `ai-rss — 微信公众号订阅文章自动化
   ai-rss source list
   ai-rss source search <公众号名称或文章链接>
   ai-rss source add <公众号名称或文章链接>
+  ai-rss source add --job 搜索任务ID --pick 候选序号
   ai-rss source add --fakeid ID --title 名称
   ai-rss source pause <订阅ID>
   ai-rss source resume <订阅ID>
@@ -150,18 +151,34 @@ async function main([group, action, ...args]) {
     case 'source list': parse(args,0); return output(await get('/open-api/subscriptions'));
     case 'source search':
     case 'source add': {
-      const manual = action==='add' && args.some((x)=>/^--(?:fakeid|title)(?:=|$)/.test(x));
-      const [query,v] = parse(args,manual ? 0 : 1,action === 'add' ? { fakeid:str,title:str } : {});
-      if (v.fakeid || v.title) {
-        return output(await send('/open-api/subscriptions','POST',{ fakeid:required(v.fakeid,'fakeid'), title:required(v.title,'title') }));
+      const options = action==='add' ? {fakeid:str,title:str,job:str,pick:str} : {};
+      const {values:v,positionals} = parseArgs({args,options,allowPositionals:true});
+      if (Object.keys(v).length) {
+        if (positionals.length) throw new Error('请单独使用候选序号或公众号标识添加。');
+        if (v.job!==undefined || v.pick!==undefined) {
+          if (v.fakeid!==undefined || v.title!==undefined) throw new Error('--job 仅与 --pick 配合使用');
+          const jobId=required(v.job,'job');
+          const pick=number(required(v.pick,'pick'),1,Number.MAX_SAFE_INTEGER,'候选序号');
+          const job=await get(jobPath(jobId));
+          if (job.kind!=='search' || job.status!=='succeeded') throw new Error('请选择已完成的公众号搜索任务');
+          const candidate=job.result?.results?.[pick-1];
+          if (!candidate) throw new Error('候选序号超出本次搜索结果范围');
+          return output(await send('/open-api/subscriptions','POST',{...candidate,title:candidate.nickname}));
+        }
+        return output(await send('/open-api/subscriptions','POST',{fakeid:required(v.fakeid,'fakeid'),title:required(v.title,'title')}));
       }
-      const { job_id } = await send('/api/v1/search','POST',{ keyword:query });
-      const job = await waitForJob(api,job_id);
-      const candidates = job.result?.results ?? [];
-      if (action === 'search') return output({ jobId:job_id, items:candidates });
-      const matches = query.startsWith('https://mp.weixin.qq.com/') ? candidates : candidates.filter((item)=>item.nickname === query);
-      if (matches.length !== 1) {
-        output({ jobId:job_id, items:candidates, message:'未能唯一确认公众号。请按搜索结果用 --fakeid 和 --title 指定。' });
+      if (positionals.length!==1 || !positionals[0].trim()) throw new Error('请提供一篇微信文章链接或公众号全名，含空格的分享文字请用引号包住。');
+      const query=positionals[0].trim();
+      const {job_id,queryType}=await send('/api/v1/search','POST',{keyword:query});
+      const job=await waitForJob(api,job_id);
+      const candidates=job.result?.results ?? [];
+      const items=candidates.map((item,index)=>({...item,pick:index+1}));
+      const message=items.length ? `确认公众号后运行 ai-rss source add --job ${job_id} --pick 序号` : '未找到公众号。在微信文章右上角点「···」复制原文链接，再用 source add 添加。';
+      if (action==='search') return output({jobId:job_id,items,message});
+      const article=queryType==='article' || (!queryType && query.startsWith('https://mp.weixin.qq.com/'));
+      const matches=article ? candidates : candidates.filter(item=>item.nickname?.trim().toLowerCase()===query.toLowerCase());
+      if (matches.length!==1) {
+        output({jobId:job_id,items,message});
         process.exitCode=2;
         return;
       }
