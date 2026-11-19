@@ -19,6 +19,12 @@ ai-rss login
 
 直接用 AI 技能时，可以让它发起登录，把授权链接发给你；打开链接后完成登录或注册即可。不想全局安装 CLI，也可以运行 `npx @illli-studio/ai-rss login`。
 
+## WorkBuddy 专家
+
+**微信公众号数据分析师 · 知衡** 是独立的 WorkBuddy 单专家包。三个快捷问题对应订阅内对标推荐、同账号高表现文章分析、双账号选题对比。专家内置分析技能，沿用本机 IRSS 登录和订阅。使用 Node.js 22 或更新版本。
+
+[下载专家 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-analyst-expert-1.0.0.zip) · [专家定义与构建说明](experts/wechat-analyst-expert/README.md) · [WorkBuddy 专家规范](https://open.workbuddy.cn/docs/expert)
+
 ## 安装 AI 技能
 
 四个专项技能可按需单独安装。它们与综合技能共享同一台设备、同一用户环境的 IRSS 登录，直接使用账号已有的订阅和文章。仅在首次连接时授权一次。WorkBuddy 中选择「添加技能 → 上传技能」，导入对应 ZIP。安装包内置 CLI，需要 Node.js 22 或更高版本。
