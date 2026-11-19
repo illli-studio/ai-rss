@@ -27,5 +27,10 @@ with tempfile.TemporaryDirectory() as temporary:
         archive.write(root/'LICENSE', f'{name}/LICENSE')
         for file in skill.namelist():
             relative = file.split('/', 1)[1]
-            archive.writestr(f'{name}/skills/{Path(skill_path).name}/{relative}', skill.read(file))
+            data = skill.read(file)
+            if relative == 'SKILL.md':
+                market_name = file.split('/', 1)[0]
+                data = data.decode('utf-8').replace(f'\nname: {market_name}\n',
+                    f'\nname: {Path(skill_path).name}\n', 1).encode('utf-8')
+            archive.writestr(f'{name}/skills/{Path(skill_path).name}/{relative}', data)
 print(output)

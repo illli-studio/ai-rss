@@ -1,4 +1,3 @@
-import { parseArgs } from 'node:util';
 import { integer, selectSources } from './archive-workflows.mjs';
 import { keywords, readArchive } from './analyst.mjs';
 import { escape, safeLink } from './report.mjs';
@@ -31,7 +30,7 @@ function angle(title,index) {
 
 export async function weeklyPlan(api,args,now=Date.now()) {
   const str={type:'string'};
-  const {values:v}=parseArgs({args,options:{source:{...str,multiple:true},topic:str,days:str,posts:str,timezone:str,format:str}});
+  const v=Array.isArray(args)?(await import('node:util')).parseArgs({args,options:{source:{...str,multiple:true},topic:str,days:str,posts:str,timezone:str,format:str}}).values:args;
   if (!v.source?.length) throw new Error('请先用 source list 选择参考公众号，再传 --source 名称或 ID');
   const posts=integer(v.posts??7,1,7,'每周篇数');
   const days=integer(v.days??30,1,365,'回看天数');

@@ -11,7 +11,7 @@ function fixture() {
   articles.push({...articles[4],id:90,title:'无原文材料',originalUrl:''});
   return {request:async(path,{query}={})=>{
     if(path==='/open-api/subscriptions') return {items:[{id:'a',title:'甲号',enabled:1},{id:'b',title:'乙号',enabled:1}]};
-    assert.equal(path,'/open-api/articles');
+    assert.equal(path,'/api/v1/articles');
     const rows=articles.filter(a=>a.sourceId===query.sourceId&&a.publishedAt>=query.since&&a.publishedAt<=query.until);
     return {items:rows.slice((query.page-1)*query.pageSize,query.page*query.pageSize),total:rows.length};
   }};

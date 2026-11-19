@@ -22,8 +22,8 @@ parser.add_argument('--output-dir', type=Path, default=root/'dist')
 parser.add_argument('--workbuddy', action='store_true')
 args = parser.parse_args()
 name, workbuddy = args.skill, args.workbuddy
-if workbuddy and name in focused:
-    version = '0.2.10'  # Marketplace skill revision; the bundled CLI has its own version.
+if workbuddy:
+    version = '0.2.19'  # Marketplace skill revision; the bundled CLI has its own version.
 variant = 'workbuddy' if workbuddy else 'skill'
 target = args.output_dir / f'{name}-{variant}-{version}.zip'
 target.parent.mkdir(parents=True, exist_ok=True)
@@ -63,13 +63,17 @@ elif workbuddy:
     paths['scripts/verify.mjs'] = root/'test'/f'{suite}.test.mjs'
     title, en_title, example = focused[name]
     _, frontmatter, body = skill.split('---', 2)
-    description = next(line.removeprefix('description: ') for line in frontmatter.splitlines()
-                       if line.startswith('description: '))
     english = {
         'wechat-data-analyst': 'Recommend comparable accounts and identify high-performing articles using archived evidence.',
         'wechat-article-search': 'Search archived articles across your subscribed WeChat accounts and find original links.',
         'wechat-daily-brief': 'Build a daily briefing from your WeChat subscriptions with links to the original articles.',
         'wechat-competitor-monitor': 'Compare updates from competing brands across your subscribed WeChat accounts.',
+    }
+    market_copy = {
+        'wechat-article-search': '搜已订阅的公众号文章，按关键词找回历史推文，附命中摘录、日期和原文。',
+        'wechat-daily-brief': '把关注的公众号做成今日简报，一分钟读三篇，每条带来源和原文。',
+        'wechat-competitor-monitor': '跟踪竞品公众号的新品、调价和活动，按品牌对比上周变化，附原文依据。',
+        'wechat-data-analyst': '从订阅中找对标账号，识别阅读量达到同号平时两倍的文章，列出依据。',
     }
     prompts_en = {
         'wechat-data-analyst': 'Find three comparable subscriptions and articles that outperformed their account baseline.',
@@ -83,12 +87,20 @@ elif workbuddy:
         'wechat-daily-brief': ('先用示例做一份今日简报，附来源和原文。', 'Build a sample daily briefing with sources and article links.'),
         'wechat-competitor-monitor': ('用示例比较两个品牌的动作，附上各自的文章。', 'Compare two sample brands and cite the articles behind their updates.'),
     }
+    followups = {
+        'wechat-article-search': ('找近 7 天同时提到「相机」和「夜拍」的订阅文章，列出命中词和原文。', 'Find subscribed articles mentioning both cameras and night photography in the past week, with evidence and links.'),
+        'wechat-daily-brief': ('我只有一分钟，挑今天最值得点开的三篇，每篇一句话附原文。', 'Give me three articles to open today, with one sentence and an original link each.'),
+        'wechat-competitor-monitor': ('对比两个品牌本周的价格动作，只把有原文依据的调价单列出来。', 'Compare pricing signals from two brands this week and separate verified price changes.'),
+        'wechat-data-analyst': ('我关注的账号哪些文章超过了平时的两倍？列出阅读量、基准和样本数。', 'Which articles reached twice their account baseline? Include the observed reads, baseline and sample size.'),
+    }
+    followup_zh, followup_en = followups[name]
     preview_zh, preview_en = previews[name]
-    metadata = dict(examples_en=[preview_en, prompts_en[name]], description_en=english[name], display_name=title, display_name_en=en_title, description_zh=description,
-                    examples_zh=[preview_zh, example], version=version, author='illli-studio')
+    metadata = dict(examples_en=[preview_en, prompts_en[name], followup_en], description_en=english[name], display_name=title, display_name_en=en_title, description_zh=market_copy[name],
+                    examples_zh=[preview_zh, example, followup_zh], version=version, author='illli-studio')
     fields = '\n'.join(f'{key}: {json.dumps(value, ensure_ascii=False)}' for key, value in metadata.items())
     skill = f'---{frontmatter}{fields}\n---{body}\n## 本地验证\n\n运行 `node --test scripts/verify.mjs` 可用模拟数据验证本技能的工作流，无需登录。\n'
 if name in focused:
+    paths['references/local-files.md'] = root/'docs/local-files.md'
     paths['scripts/demo-subscriptions.mjs'] = root/'scripts/demo-subscriptions.mjs'
 if workbuddy or name in focused:
     paths.update({'package.json': root/'package.json', 'bin/ai-rss.mjs': root/'bin/ai-rss.mjs'})

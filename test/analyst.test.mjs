@@ -12,11 +12,13 @@ function api(items,histories={},names=['甲','乙','丙']) {
   return {request:async(path,options={})=>{
     assert.equal(options.method,undefined);
     if(path==='/open-api/subscriptions') return {items:sources};
-    if(path==='/open-api/articles') {
+    if(path==='/api/v1/articles') {
+      assert.equal(options.query.view,'cards');
       const {page,pageSize,sourceId,since,until}=options.query;
       const filtered=items.filter(x=>(!sourceId||x.sourceId===sourceId)&&x.publishedAt>=since&&x.publishedAt<=until);
       return {items:filtered.slice((page-1)*pageSize,page*pageSize),total:filtered.length};
     }
+    if(path.endsWith('/metrics/latest')) throw Object.assign(new Error('older server'),{status:404});
     assert.match(path,/^\/api\/v1\/ai\/intelligence\/metrics\/\d+$/);
     return {items:histories[path.split('/').pop()]??[]};
   }};
@@ -58,4 +60,37 @@ test('sampling reports incomplete coverage and never buys data',async()=>{
   const items=Array.from({length:102},(_,i)=>row(i+1,'0','A'));
   const r=await analyst(api(items),'performance',['--source','甲','--sample','101',...json],now);
   assert.deepEqual(r.coverage[0],{id:'0',title:'甲',total:102,checked:101,measured:0,comparable:0,highCount:0});
+});
+
+test('analysis distinguishes missing snapshots from measured but ordinary performance',async()=>{
+  const items=[1,2,3,4].map(id=>row(id,'0','标题'));
+  const args=['--source','甲'];
+  assert.match(await analyst(api(items),'performance',args,now),/没有可用的阅读量快照/);
+  const snapshots=Object.fromEntries(items.map(a=>[a.id,[{readNum:100,capturedAt:now}]]));
+  assert.match(await analyst(api(items,snapshots),'performance',args,now),/没有文章达到同号基准/);
+});
+test('performance includes an uncapped control article near the baseline',async()=>{
+  const items=[1,2,3,4].map(id=>row(id,'0','样本'+id));
+  const snapshots=Object.fromEntries([500,90,100,110].map((readNum,i)=>[i+1,[{readNum,capturedAt:now}]]));
+  const r=await analyst(api(items,snapshots),'performance',['--source','甲','--format','json'],now);
+  assert.equal(r.highlights[0].baselineExample.id,3);
+  assert.equal(r.highlights[0].baselineExample.readNum,100);
+});
+
+test('a full account sample uses one metric request and keeps measured zeros',async()=>{
+  const items=Array.from({length:50},(_,i)=>row(i+1,'0','样本'));
+  const legacy=api(items);
+  let batches=0;
+  const client={request(path,options){
+    if(path.endsWith('/metrics/latest')){
+      batches++;
+      assert.equal(options.query.ids.split(',').length,50);
+      return {items:{1:{capturedAt:now,readNum:0}}};
+    }
+    assert.ok(!path.includes('/metrics/'));
+    return legacy.request(path,options);
+  }};
+  const data=await analyst(client,'performance',['--source','甲',...json],now);
+  assert.equal(batches,1);
+  assert.equal(data.coverage[0].measured,1);
 });

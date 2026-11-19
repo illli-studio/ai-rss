@@ -27,24 +27,24 @@ ai-rss login
 
 **微信公众号选题策划 · 笺禾** 从现有 IRSS 订阅中选择参考号，按下一自然周输出每日排期、专题排期或每周三篇精排。每个选题附切入角度、推荐理由和参考原文。
 
-[下载选题策划专家 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/irss-wechat-editorial-planner-1.0.1.zip) · [使用与构建说明](experts/wechat-editorial-planner/README.md)
+[下载选题策划专家 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/irss-wechat-editorial-planner-1.0.2.zip) · [使用与构建说明](experts/wechat-editorial-planner/README.md)
 
 **微信公众号数据分析师 · 知衡** 是独立的 WorkBuddy 单专家包。三个快捷问题对应订阅内对标推荐、同账号高表现文章分析、双账号选题对比。专家内置分析技能，沿用本机 IRSS 登录和订阅。使用 Node.js 22 或更新版本。
 
-[下载专家 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-analyst-expert-1.0.2.zip) · [专家定义与构建说明](experts/wechat-analyst-expert/README.md) · [WorkBuddy 专家规范](https://open.workbuddy.cn/docs/expert)
+[下载专家 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-analyst-expert-1.0.3.zip) · [专家定义与构建说明](experts/wechat-analyst-expert/README.md) · [WorkBuddy 专家规范](https://open.workbuddy.cn/docs/expert)
 
 ## 安装 AI 技能
 
-[下载综合技能 WorkBuddy 安装包](downloads/ai-rss-workbuddy-0.2.9.zip)
+[下载综合技能 WorkBuddy 安装包](downloads/ai-rss-workbuddy-0.2.19.zip)
 
 四个专项技能可按需单独安装。它们与综合技能共享同一台设备、同一用户环境的 IRSS 登录，直接使用账号已有的订阅和文章。仅在首次连接时授权一次。WorkBuddy 中选择「添加技能 → 上传技能」，导入对应 ZIP。安装包内置 CLI，需要 Node.js 22 或更高版本。
 
 | 技能 | 试着这样问 | WorkBuddy 安装包 |
 | --- | --- | --- |
-| 微信公众号订阅号数据分析师 | 从我的订阅里推荐对标号，找出阅读量显著高于同号常态的文章。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-data-analyst-workbuddy-0.2.10.zip) |
-| 微信公众号订阅号文章搜索 | 找到我的订阅里最近一周讨论 AI 编程的文章，附原文链接。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-article-search-workbuddy-0.2.10.zip) |
-| 微信公众号订阅号每日简报 | 我关注的公众号今天发了什么？整理成一份简报。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-daily-brief-workbuddy-0.2.10.zip) |
-| 微信公众号订阅号竞品监控 | 对比这两个品牌上周的新品和促销，列出依据。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-competitor-monitor-workbuddy-0.2.10.zip) |
+| 微信公众号订阅号数据分析师 | 从我的订阅里推荐对标号，找出阅读量显著高于同号常态的文章。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-data-analyst-workbuddy-0.2.19.zip) |
+| 微信公众号订阅号文章搜索 | 找到我的订阅里最近一周讨论 AI 编程的文章，附原文链接。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-article-search-workbuddy-0.2.19.zip) |
+| 微信公众号订阅号每日简报 | 我关注的公众号今天发了什么？整理成一份简报。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-daily-brief-workbuddy-0.2.19.zip) |
+| 微信公众号订阅号竞品监控 | 对比这两个品牌上周的新品和促销，列出依据。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-competitor-monitor-workbuddy-0.2.19.zip) |
 
 也可以选一条命令从源码安装：
 
@@ -176,3 +176,5 @@ ai-rss intel analyze "科技日报" --days 7
 CLI 和技能会提示到期并给出当前实例的套餐页链接。打开链接即可开通或续费；不需要重装技能。新的定时报告和第三方投递在到期时暂停。
 
 全部命令和参数见[中文完整命令手册](skills/ai-rss/references/commands.md)，或运行 `ai-rss --help`。本项目使用 MIT 许可证。
+
+四个独立技能还支持直接读取 Excel 导出的中文 CSV、文章数组或 IRSS 合集 JSON。适用于群里收到的文章整理、每周竞品复盘和有阅读量快照的账号分析。见[本地材料用法](docs/local-files.md)。

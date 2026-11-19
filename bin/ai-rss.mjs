@@ -35,9 +35,10 @@ const HELP = `ai-rss — 微信公众号订阅文章自动化
   ai-rss analyst peers --source 对标对象 [--days 30] [--limit 5]
   ai-rss analyst performance [--source 公众号] [--days 30] [--sample 50] [--limit 10]
     两项分析都支持 --format markdown|json；只读已有归档与快照。
-  ai-rss archive search [--keyword 关键词] [--days 天数] [--source 名称或ID]
-  ai-rss archive brief [--date YYYY-MM-DD] [--timezone 时区] [--source 名称或ID]
-  ai-rss archive compare --source 品牌A --source 品牌B [--days 天数] [--keyword 关键词]
+  ai-rss local <search|brief|compare|peers|performance> 文件.json或.csv [查询参数]
+  ai-rss archive search [--keyword 关键词] [--match any|all] [--sort latest|relevance] [--days 天数 或 --from 日期 --to 日期] [--source 名称或ID]
+  ai-rss archive brief [--keyword 主题词] [--date YYYY-MM-DD] [--timezone 时区] [--source 名称或ID]
+  ai-rss archive compare --source 品牌A --source 品牌B [--signal price|product|channel] [--previous] [--days 天数 或 --from 日期 --to 日期] [--keyword 关键词]
     来源与关键词可重复传入；--limit 设置展示篇数；--format markdown|json
   ai-rss article star|unstar <文章ID>
   ai-rss article delete <文章ID> [文章ID ...] --yes
@@ -125,6 +126,10 @@ async function main([group, action, ...args]) {
   if (group === 'logout') {
     const [,v]=parse(action?[action,...args]:[],0,{'local-only':bool});
     return output(await logout({localOnly:v['local-only']}));
+  }
+  if (group==='local') {
+    const {localReport}=await import('../src/local-report.mjs');
+    return output(await localReport(action,args[0],args.slice(1)));
   }
   const api = await activeClient();
   if (group==='plan' && action==='week') return output(await weeklyPlan(api,args));

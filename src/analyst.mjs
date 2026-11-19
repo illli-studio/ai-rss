@@ -1,4 +1,3 @@
-import { parseArgs } from 'node:util';
 import { integer, selectSources } from './archive-workflows.mjs';
 import { escape, safeLink } from './report.mjs';
 
@@ -22,8 +21,17 @@ export async function readArchive(api,sourceId,window,max=Infinity) {
   const seen=new Map();
   let total=0;
   const pageSize=Math.min(max,100);
+  let path='/api/v1/articles';
   for (let page=1; ;page++) {
-    const data=await api.request('/open-api/articles',{query:{sourceId,...window,page,pageSize}});
+    const query={sourceId,...window,page,pageSize,view:'cards'};
+    let data;
+    try {
+      data=await api.request(path,{query});
+    } catch (error) {
+      if (page!==1 || error.status!==404) throw error;
+      path='/open-api/articles';
+      data=await api.request(path,{query});
+    }
     total=data.total;
     for (const a of data.items) {
       if (seen.size>=max) break;
@@ -93,13 +101,24 @@ const bands=['发布后不足 1 天','发布后 1–3 天','发布后 3–7 天'
 
 async function performance(api,sources,window,sample,limit) {
   const coverage=[],highlights=[];
+  let batchSupported=!api.localFile;
   for (const s of sources) {
     const {items,total}=await readArchive(api,s.id,window,sample);
+    let snapshots;
+    if (items.length && batchSupported) {
+      try {
+        const query={ids:items.map(a=>a.id).join(','),until:window.until};
+        snapshots=(await api.request('/api/v1/ai/intelligence/metrics/latest',{query})).items;
+      } catch (error) {
+        if (error.status!==404) throw error;
+        batchSupported=false;
+      }
+    }
     const measured=[];
     for (let i=0;i<items.length;i+=4) {
       const batch=await Promise.all(items.slice(i,i+4).map(async a=>{
-        const history=await api.request('/api/v1/ai/intelligence/metrics/'+a.id);
-        const snap=history.items.find(x=>Number.isSafeInteger(x.readNum)&&x.readNum>=0&&
+        const history=snapshots?[]:(await api.request('/api/v1/ai/intelligence/metrics/'+a.id)).items;
+        const snap=snapshots?snapshots[a.id]:history.find(x=>Number.isSafeInteger(x.readNum)&&x.readNum>=0&&
           x.capturedAt>=a.publishedAt&&x.capturedAt<=window.until);
         return snap && {...articleRef(a),readNum:snap.readNum,capped:snap.readCapped===true,
           capturedAt:snap.capturedAt,band:ageBand(snap.capturedAt-a.publishedAt)};
@@ -122,7 +141,10 @@ async function performance(api,sources,window,sample,limit) {
       comparable++;
       if (a.readNum<baseline*2) continue;
       highCount++;
-      highlights.push({...a,source:s.title,baseline,peerCount:peers.length,multiple:a.readNum/baseline});
+      const nearest=peers.filter(peer=>!peer.capped).sort((x,y)=>
+        Math.abs(x.readNum-baseline)-Math.abs(y.readNum-baseline) || y.publishedAt-x.publishedAt)[0];
+      highlights.push({...a,source:s.title,baseline,peerCount:peers.length,multiple:a.readNum/baseline,
+        ...(nearest?{baselineExample:{...articleRef(nearest),readNum:nearest.readNum}}:{})});
     }
     coverage.push({id:s.id,title:s.title,total,checked:items.length,measured:measured.length,comparable,highCount});
   }
@@ -140,7 +162,7 @@ export async function analyst(api,action,args,now=Date.now()) {
   const str={type:'string'};
   const options={source:{...str,multiple:true},days:str,limit:str,format:str};
   if (action==='performance') options.sample=str;
-  const {values:v}=parseArgs({args,options});
+  const v=Array.isArray(args)?(await import('node:util')).parseArgs({args,options}).values:args;
   const days=integer(v.days??30,1,365,'天数');
   const limit=integer(v.limit??(action==='peers'?5:10),1,100,'展示数量');
   const sample=integer(v.sample??50,1,200,'每号检查篇数');
@@ -148,10 +170,10 @@ export async function analyst(api,action,args,now=Date.now()) {
   if (action==='peers'&&v.source?.length!==1) throw new Error('请用 --source 指定一个对标对象，可使用订阅名或 ID');
   const window={since:now-days*day,until:now};
   const sources=(await api.request('/open-api/subscriptions')).items;
-  const selected=selectSources(sources,v.source??[]);
+  const selected=selectSources(sources,v.source??[],api.localFile);
   const result=action==='peers'?peers(sources,(await readArchive(api,undefined,window)).items,selected[0].id,days,limit):
     await performance(api,selected,window,sample,limit);
-  const warnings=(action==='peers'?sources:selected).filter(s=>s.last_error||!s.last_success||!s.enabled)
+  const warnings=(action==='peers'?sources:selected).filter(s=>!s.localFile && (s.last_error||!s.last_success||!s.enabled))
     .map(s=>({source:s.title,reason:[s.last_error,!s.last_success?'暂无成功采集记录':'',!s.enabled?'采集已暂停':''].filter(Boolean).join('，')}));
   if (v.format==='json') return {window,days,...result,warnings};
   const lines=['# '+(action==='peers'?'微信公众号对标账号推荐':'微信公众号高表现文章分析'),'','近 '+days+' 天的订阅归档。'];
@@ -164,11 +186,19 @@ export async function analyst(api,action,args,now=Date.now()) {
     if (!result.recommendations.length) lines.push('当前归档没有足够的共同选题证据，可扩大时间窗口或补充订阅。');
   } else {
     lines.push('按同账号、相近观测时长比较。阅读量达到至少 3 篇其他文章中位数的 2 倍时入选。');
-    for (const c of result.coverage) lines.push('- '+escape(c.title)+'：归档 '+c.total+' 篇，查最近 '+c.checked+' 篇，有阅读量 '+c.measured+' 篇，可比较 '+c.comparable+' 篇，入选 '+c.highCount+' 篇。');
+    for (const c of result.coverage) lines.push('- '+escape(c.title)+'：归档 '+c.total+' 篇，查最近 '+c.checked+' 篇，有阅读量 '+c.measured+' 篇，缺少有效阅读量快照 '+(c.checked-c.measured)+' 篇，可比较 '+c.comparable+' 篇，入选 '+c.highCount+' 篇。');
     for (const a of result.highlights) lines.push('','## '+link(a),escape(a.source)+' · '+bands[a.band]+
       ' · 阅读量 '+(a.capped?'至少 ':'')+a.readNum+' · 同号中位数 '+a.baseline+'（'+a.peerCount+' 篇） · '+(a.capped?'至少 ':'')+Number(a.multiple.toFixed(2))+' 倍',
-      '发布 '+new Date(a.publishedAt).toISOString()+'，观测 '+new Date(a.capturedAt).toISOString()+'。');
-    if (!result.highlights.length) lines.push('没有可确认的高表现文章。请结合上面的归档、快照和可比较篇数判断覆盖情况。');
+      '发布 '+new Date(a.publishedAt).toISOString()+'，观测 '+new Date(a.capturedAt).toISOString()+'。',
+      ...(a.baselineExample?['接近基准的同号样本：'+link(a.baselineExample)+'（阅读量 '+a.baselineExample.readNum+'）。']:[]));
+    if (!result.highlights.length) {
+      const coverage=result.coverage;
+      if (!coverage.length) lines.push(api.localFile?'这份文件没有文章，请提供含文章的清单。':'当前没有订阅。可从一篇参考文章的微信原文链接开始添加。');
+      else if (!coverage.some(c=>c.checked)) lines.push('所选时间内没有归档文章。请核对采集状态，或扩大日期范围。');
+      else if (!coverage.some(c=>c.measured)) lines.push('归档中没有可用的阅读量快照。可以先用对标分析比较选题，或提供带观测时间的阅读量。');
+      else if (!coverage.some(c=>c.comparable)) lines.push('现有快照不足以形成可靠基准。可扩大取样范围，补足同号、相近观测时长的样本，并核对中位数是否受封顶值影响或为零。');
+      else lines.push('本次可比较样本中，没有文章达到同号基准的 2 倍。');
+    }
   }
   for (const w of warnings) lines.push('采集提示：'+escape(w.source)+'，'+escape(w.reason)+'。');
   return lines.join('\n');
