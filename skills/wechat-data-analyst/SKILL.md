@@ -1,11 +1,19 @@
 ---
 name: wechat-data-analyst
-description: 微信公众号数据分析师。在已有 IRSS 订阅里找对标公众号、比较选题与发文频率，根据已保存的阅读量快照识别显著高于同账号常态的文章。用于公众号运营诊断、对标账号推荐、爆款文章分析。
+description: 微信公众号订阅号数据分析师。在已有 IRSS 订阅里找对标公众号、比较选题与发文频率，根据已保存的阅读量快照识别显著高于同账号常态的文章。用于公众号运营诊断、对标账号推荐、爆款文章分析。
 ---
 
-# 微信公众号数据分析师
+# 微信公众号订阅号数据分析师
 
-在本技能目录运行命令。WorkBuddy 包内置 CLI，需 Node.js 22+。下文的 `ai-rss` 代表 `node bin/ai-rss.mjs`。从源码安装时可用 0.2.6+ CLI，或 `npx --yes --package=https://codeload.github.com/illli-studio/ai-rss/tar.gz/refs/tags/skills-v0.2.6 ai-rss`。
+## 选择数据来源
+
+若当前环境无法运行 Node.js，用户要看演示时可直接展示[示例报告](references/sample-report.md)，并注明它是预先生成的虚构样例。
+
+- 用户说“演示一下”“先看看效果”时，从解压后的技能目录直接运行 `node scripts/demo-subscriptions.mjs performance`（Node.js 22+）。比较已保存的阅读量与同号基准。也可运行 `node scripts/demo-subscriptions.mjs peers` 查看对标账号及双方证据。把实际结果展示给用户，并保留“虚构示例”标记。
+- 用户贴来文章和阅读量时，先按来源与观测时长分组，报告样本数、缺测数。个案与同组其他文章的中位数比；不足三篇可比样本时，给出原始数据和缺口。只有文章没有指标时，可以分析选题重合，不推算阅读量。
+- 用户要查询“我的订阅”时，执行下面的 IRSS 流程。若缺少登录或数据，说明具体缺口，让用户选择连接账号、提供材料或看示例。演示数据不能用于回答真实账号的问题。
+
+安装包内带 CLI，下文的 `ai-rss` 代表在技能目录运行 `node bin/ai-rss.mjs`。源码安装时可用 `npx --yes @illli-studio/ai-rss@0.2.9` 执行相同的线上命令；离线演示可从仓库根目录运行。
 
 用 `ai-rss status` 复用本机同一环境的登录。尚未连接时，运行 `ai-rss login --no-browser`（自托管加 --url 实例地址），把完整授权链接交给用户，等待成功后继续原任务。沿用现有账号与订阅，不索要密钥或密码。套餐或采集异常时说明实际状态。
 

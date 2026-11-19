@@ -8,13 +8,13 @@ root = Path(__file__).resolve().parents[1]
 version = json.loads((root / 'package.json').read_text(encoding='utf-8'))['version']
 parser = argparse.ArgumentParser(description=__doc__)
 focused = {
-    'wechat-data-analyst': ('微信公众号数据分析师', 'WeChat Official Account Analyst',
+    'wechat-data-analyst': ('微信公众号订阅号数据分析师', 'WeChat Official Account Analyst',
         '从我的订阅里找三个对标号，再分析有哪些文章的阅读量明显高于同号常态。'),
-    'wechat-article-search': ('微信公众号订阅文章搜索', 'Subscribed WeChat Article Search',
+    'wechat-article-search': ('微信公众号订阅号文章搜索', 'Subscribed WeChat Article Search',
         '查找我的订阅里最近 7 天提到人工智能的公众号文章。'),
-    'wechat-daily-brief': ('微信公众号每日简报', 'WeChat Daily Brief',
+    'wechat-daily-brief': ('微信公众号订阅号每日简报', 'WeChat Daily Brief',
         '把我订阅的公众号今天的更新整理成一份带原文的简报。'),
-    'wechat-competitor-monitor': ('微信公众号竞品监控', 'WeChat Competitor Monitor',
+    'wechat-competitor-monitor': ('微信公众号订阅号竞品监控', 'WeChat Competitor Monitor',
         '比较我订阅的两个品牌公众号上周有哪些新品和调价动态。'),
 }
 parser.add_argument('--skill', choices=['ai-rss', *focused], default='ai-rss')
@@ -22,6 +22,8 @@ parser.add_argument('--output-dir', type=Path, default=root/'dist')
 parser.add_argument('--workbuddy', action='store_true')
 args = parser.parse_args()
 name, workbuddy = args.skill, args.workbuddy
+if workbuddy and name in focused:
+    version = '0.2.10'  # Marketplace skill revision; the bundled CLI has its own version.
 variant = 'workbuddy' if workbuddy else 'skill'
 target = args.output_dir / f'{name}-{variant}-{version}.zip'
 target.parent.mkdir(parents=True, exist_ok=True)
@@ -75,10 +77,19 @@ elif workbuddy:
         'wechat-daily-brief': 'Summarize today’s updates from my subscriptions with links to the original articles.',
         'wechat-competitor-monitor': 'Compare last week’s product launches and price changes from two brands I subscribe to.',
     }
-    metadata = dict(examples_en=[prompts_en[name]], description_en=english[name], display_name=title, display_name_en=en_title, description_zh=description,
-                    examples_zh=[example], version=version, author='illli-studio')
+    previews = {
+        'wechat-data-analyst': ('用示例找一篇高表现文章，解释同号基准怎么算。', 'Show a sample outperformer and explain its account baseline.'),
+        'wechat-article-search': ('用示例搜索人工智能，列出匹配文章和命中依据。', 'Search the sample archive for AI and explain the matches.'),
+        'wechat-daily-brief': ('先用示例做一份今日简报，附来源和原文。', 'Build a sample daily briefing with sources and article links.'),
+        'wechat-competitor-monitor': ('用示例比较两个品牌的动作，附上各自的文章。', 'Compare two sample brands and cite the articles behind their updates.'),
+    }
+    preview_zh, preview_en = previews[name]
+    metadata = dict(examples_en=[preview_en, prompts_en[name]], description_en=english[name], display_name=title, display_name_en=en_title, description_zh=description,
+                    examples_zh=[preview_zh, example], version=version, author='illli-studio')
     fields = '\n'.join(f'{key}: {json.dumps(value, ensure_ascii=False)}' for key, value in metadata.items())
     skill = f'---{frontmatter}{fields}\n---{body}\n## 本地验证\n\n运行 `node --test scripts/verify.mjs` 可用模拟数据验证本技能的工作流，无需登录。\n'
+if name in focused:
+    paths['scripts/demo-subscriptions.mjs'] = root/'scripts/demo-subscriptions.mjs'
 if workbuddy or name in focused:
     paths.update({'package.json': root/'package.json', 'bin/ai-rss.mjs': root/'bin/ai-rss.mjs'})
     paths.update({f'src/{source.name}': source for source in sorted((root/'src').glob('*.mjs'))})

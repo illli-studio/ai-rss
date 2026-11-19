@@ -41,10 +41,10 @@ ai-rss login
 
 | 技能 | 试着这样问 | WorkBuddy 安装包 |
 | --- | --- | --- |
-| 微信公众号数据分析师 | 从我的订阅里推荐对标号，找出阅读量显著高于同号常态的文章。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-data-analyst-workbuddy-0.2.9.zip) |
-| 微信公众号文章搜索 | 找到我的订阅里最近一周讨论 AI 编程的文章，附原文链接。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-article-search-workbuddy-0.2.9.zip) |
-| 微信公众号每日简报 | 我关注的公众号今天发了什么？整理成一份简报。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-daily-brief-workbuddy-0.2.9.zip) |
-| 微信公众号竞品监控 | 对比这两个品牌上周的新品和促销，列出依据。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-competitor-monitor-workbuddy-0.2.9.zip) |
+| 微信公众号订阅号数据分析师 | 从我的订阅里推荐对标号，找出阅读量显著高于同号常态的文章。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-data-analyst-workbuddy-0.2.10.zip) |
+| 微信公众号订阅号文章搜索 | 找到我的订阅里最近一周讨论 AI 编程的文章，附原文链接。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-article-search-workbuddy-0.2.10.zip) |
+| 微信公众号订阅号每日简报 | 我关注的公众号今天发了什么？整理成一份简报。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-daily-brief-workbuddy-0.2.10.zip) |
+| 微信公众号订阅号竞品监控 | 对比这两个品牌上周的新品和促销，列出依据。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-competitor-monitor-workbuddy-0.2.10.zip) |
 
 也可以选一条命令从源码安装：
 
