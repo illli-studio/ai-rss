@@ -1,0 +1,66 @@
+{
+  "name": "wechat-editorial-planner",
+  "version": "1.0.0",
+  "description": "Plan an evidence-based editorial calendar for the following week using subscribed WeChat accounts.",
+  "author": {
+    "name": "illli-studio",
+    "email": "3313266046@qq.com"
+  },
+  "expertType": "agent",
+  "plugin": "wechat-editorial-planner",
+  "agentName": "wechat-editorial-planner",
+  "agents": [
+    "./agents/wechat-editorial-planner.md"
+  ],
+  "skills": [
+    "./skills/wechat-article-search"
+  ],
+  "displayName": {
+    "zh": "笺禾",
+    "en": "Jianhe"
+  },
+  "profession": {
+    "zh": "微信公众号选题策划",
+    "en": "WeChat Editorial Planner"
+  },
+  "displayDescription": {
+    "zh": "根据已订阅参考公众号的近期文章安排下周选题，按主题与发文频率给出写作角度、推荐理由与原文。",
+    "en": "Build next week’s editorial calendar from subscribed reference accounts, with tailored angles, publication dates and attributed sources."
+  },
+  "avatar": "avatars/planner.png",
+  "categoryId": "06-ContentCreative",
+  "tags": [
+    {
+      "zh": "公众号运营",
+      "en": "WeChat Operations"
+    },
+    {
+      "zh": "选题策划",
+      "en": "Editorial Planning"
+    },
+    {
+      "zh": "内容日历",
+      "en": "Content Calendar"
+    }
+  ],
+  "defaultInitPrompt": {
+    "zh": "根据我的参考公众号，帮我排出下周的选题，每天一篇。",
+    "en": "Plan one story per day for next week using my reference accounts."
+  },
+  "quickPrompts": [
+    {
+      "zh": "根据我的参考公众号，帮我排出下周的选题，每天一篇。",
+      "en": "Plan one story per day for next week using my reference accounts."
+    },
+    {
+      "zh": "围绕我指定的主题排下周选题，每篇给出推荐理由和参考原文。",
+      "en": "Plan next week around my chosen topic with reasons and original sources."
+    },
+    {
+      "zh": "下周只发三篇，帮我挑三个不同的选题并安排日期。",
+      "en": "Choose three distinct stories for next week and schedule their dates."
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/illli-studio/ai-rss"
+}

@@ -7,6 +7,7 @@ import { markdownReport } from '../src/report.mjs';
 import { intelligenceCommand } from '../src/intelligence.mjs';
 import { archiveWorkflow } from '../src/archive-workflows.mjs';
 import { analyst } from '../src/analyst.mjs';
+import { weeklyPlan } from '../src/weekly-plan.mjs';
 import pkg from '../package.json' with { type: 'json' };
 
 const HELP = `ai-rss — 微信公众号订阅文章自动化
@@ -29,6 +30,7 @@ const HELP = `ai-rss — 微信公众号订阅文章自动化
   ai-rss job wait <任务ID> [--timeout 秒]
   ai-rss article list [--source ID] [--keyword 词] [--days 天] [--page 页] [--limit 篇]
   ai-rss article show <文章ID>
+  ai-rss plan week --source 参考号 [--source 第二个号] [--topic 主题] [--posts 7] [--days 30] [--timezone Asia/Shanghai] [--format markdown|json]
   ai-rss analyst peers --source 对标对象 [--days 30] [--limit 5]
   ai-rss analyst performance [--source 公众号] [--days 30] [--sample 50] [--limit 10]
     两项分析都支持 --format markdown|json；只读已有归档与快照。
@@ -124,6 +126,7 @@ async function main([group, action, ...args]) {
     return output(await logout({localOnly:v['local-only']}));
   }
   const api = await activeClient();
+  if (group==='plan' && action==='week') return output(await weeklyPlan(api,args));
   if (group==='analyst') return output(await analyst(api,action,args));
   if (group==='archive') return output(await archiveWorkflow(api,action,args));
   if (['intel','report','metrics'].includes(group)) {

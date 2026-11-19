@@ -6,7 +6,7 @@ const day = 86400000;
 const segmenter = new Intl.Segmenter('zh', {granularity:'word'});
 const stop = new Set('我们 你们 他们 以及 这个 那个 今天 昨天 如何 为什么 一个 一种 这些 这篇 文章 公众号 微信 分享 关于 更多 阅读 原文 点击 最新 可以 已经 进行 关注 the and for with from this that'.split(' '));
 
-function keywords(text) {
+export function keywords(text) {
   const terms=new Set();
   for (const {segment,isWordLike} of segmenter.segment(text.normalize('NFKC').toLowerCase())) {
     if (isWordLike && segment.length>=2 && !stop.has(segment) && !/^\d+$/.test(segment)) terms.add(segment);
@@ -18,7 +18,7 @@ function articleRef(a) {
   return {id:a.id,title:a.title,originalUrl:a.originalUrl,publishedAt:a.publishedAt};
 }
 
-async function readArchive(api,sourceId,window,max=Infinity) {
+export async function readArchive(api,sourceId,window,max=Infinity) {
   const seen=new Map();
   let total=0;
   const pageSize=Math.min(max,100);
