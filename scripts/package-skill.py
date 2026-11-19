@@ -7,18 +7,27 @@ from zipfile import ZIP_DEFLATED, ZipFile
 root = Path(__file__).resolve().parents[1]
 version = json.loads((root / 'package.json').read_text(encoding='utf-8'))['version']
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('--workbuddy', action='store_true')
-workbuddy = parser.parse_args().workbuddy
-variant = 'workbuddy' if workbuddy else 'skill'
-target = root / 'dist' / f'ai-rss-{variant}-{version}.zip'
-target.parent.mkdir(exist_ok=True)
-paths = {
-    'LICENSE': root / 'LICENSE',
-    'references/commands.md': root / 'skills/ai-rss/references/commands.md',
-    'references/intelligence.md': root / 'skills/ai-rss/references/intelligence.md',
+focused = {
+    'wechat-article-search': ('微信公众号文章搜索', 'WeChat Article Search',
+        '查找我的订阅里最近 7 天提到人工智能的公众号文章。'),
+    'wechat-daily-brief': ('微信公众号每日简报', 'WeChat Daily Brief',
+        '把我订阅的公众号今天的更新整理成一份带原文的简报。'),
+    'wechat-competitor-monitor': ('微信公众号竞品监控', 'WeChat Competitor Monitor',
+        '比较我订阅的两个品牌公众号上周有哪些新品和调价动态。'),
 }
-skill = (root / 'skills/ai-rss/SKILL.md').read_text(encoding='utf-8')
-if workbuddy:
+parser.add_argument('--skill', choices=['ai-rss', *focused], default='ai-rss')
+parser.add_argument('--output-dir', type=Path, default=root/'dist')
+parser.add_argument('--workbuddy', action='store_true')
+args = parser.parse_args()
+name, workbuddy = args.skill, args.workbuddy
+variant = 'workbuddy' if workbuddy else 'skill'
+target = args.output_dir / f'{name}-{variant}-{version}.zip'
+target.parent.mkdir(parents=True, exist_ok=True)
+folder = root/'skills'/name
+paths = {'LICENSE': root/'LICENSE'}
+paths.update({p.relative_to(folder).as_posix(): p for p in (folder/'references').glob('*.md')})
+skill = (folder/'SKILL.md').read_text(encoding='utf-8')
+if workbuddy and name == 'ai-rss':
     _, frontmatter, body = skill.split('---', 2)
     metadata = {
         'display_name': 'ai-rss · 微信公众号订阅与监控',
@@ -44,11 +53,21 @@ if workbuddy:
         '用户要操作自己的工作空间时，再进入下方登录流程。'
     )
     skill = f'---{frontmatter}{fields}\n---\n\n{heading}\n\n{intro}\n\n{instructions}'
-    paths.update({'package.json': root/'package.json', 'bin/ai-rss.mjs': root/'bin/ai-rss.mjs',
-                  'scripts/verify.mjs': root/'test/delete.test.mjs'})
+    paths['scripts/verify.mjs'] = root/'test/delete.test.mjs'
+elif workbuddy:
+    title, en_title, example = focused[name]
+    _, frontmatter, body = skill.split('---', 2)
+    description = next(line.removeprefix('description: ') for line in frontmatter.splitlines()
+                       if line.startswith('description: '))
+    metadata = dict(display_name=title, display_name_en=en_title, description_zh=description,
+                    examples_zh=[example], version=version, author='illli-studio')
+    fields = '\n'.join(f'{key}: {json.dumps(value, ensure_ascii=False)}' for key, value in metadata.items())
+    skill = f'---{frontmatter}{fields}\n---{body}'
+if workbuddy or name in focused:
+    paths.update({'package.json': root/'package.json', 'bin/ai-rss.mjs': root/'bin/ai-rss.mjs'})
     paths.update({f'src/{source.name}': source for source in sorted((root/'src').glob('*.mjs'))})
 with ZipFile(target, 'w', compression=ZIP_DEFLATED) as archive:
-    archive.writestr('ai-rss/SKILL.md',skill)
-    for name, source in paths.items():
-        archive.write(source, 'ai-rss/' + name)
+    archive.writestr(f'{name}/SKILL.md', skill)
+    for relative, source in paths.items():
+        archive.write(source, f'{name}/{relative}')
 print(target)

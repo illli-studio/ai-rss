@@ -21,6 +21,24 @@ ai-rss login
 
 ## 安装 AI 技能
 
+三个专项技能可按需单独安装。它们与综合技能共享同一台设备、同一用户环境的 IRSS 登录，直接使用账号已有的订阅和文章。仅在首次连接时授权一次。WorkBuddy 中选择「添加技能 → 上传技能」，导入对应 ZIP。安装包内置 CLI，需要 Node.js 22 或更高版本。
+
+| 技能 | 试着这样问 | WorkBuddy 安装包 |
+| --- | --- | --- |
+| 微信公众号文章搜索 | 找到我的订阅里最近一周讨论 AI 编程的文章，附原文链接。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-article-search-workbuddy-0.2.4.zip) |
+| 微信公众号每日简报 | 我关注的公众号今天发了什么？整理成一份简报。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-daily-brief-workbuddy-0.2.4.zip) |
+| 微信公众号竞品监控 | 对比这两个品牌上周的新品和促销，列出依据。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-competitor-monitor-workbuddy-0.2.4.zip) |
+
+也可以选一条命令从源码安装：
+
+```sh
+npx skills add illli-studio/ai-rss --skill wechat-article-search
+npx skills add illli-studio/ai-rss --skill wechat-daily-brief
+npx skills add illli-studio/ai-rss --skill wechat-competitor-monitor
+```
+
+维护者可用 `python scripts/package-skill.py --workbuddy --skill wechat-article-search --output-dir downloads` 重建安装包，把技能 ID 换成对应目录名即可。
+
 支持 `skills` 安装器的客户端，直接从 GitHub 安装技能：
 
 ```sh
