@@ -25,9 +25,9 @@ ai-rss login
 
 | 技能 | 试着这样问 | WorkBuddy 安装包 |
 | --- | --- | --- |
-| 微信公众号文章搜索 | 找到我的订阅里最近一周讨论 AI 编程的文章，附原文链接。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-article-search-workbuddy-0.2.4.zip) |
-| 微信公众号每日简报 | 我关注的公众号今天发了什么？整理成一份简报。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-daily-brief-workbuddy-0.2.4.zip) |
-| 微信公众号竞品监控 | 对比这两个品牌上周的新品和促销，列出依据。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-competitor-monitor-workbuddy-0.2.4.zip) |
+| 微信公众号文章搜索 | 找到我的订阅里最近一周讨论 AI 编程的文章，附原文链接。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-article-search-workbuddy-0.2.5.zip) |
+| 微信公众号每日简报 | 我关注的公众号今天发了什么？整理成一份简报。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-daily-brief-workbuddy-0.2.5.zip) |
+| 微信公众号竞品监控 | 对比这两个品牌上周的新品和促销，列出依据。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-competitor-monitor-workbuddy-0.2.5.zip) |
 
 也可以选一条命令从源码安装：
 
@@ -45,7 +45,19 @@ npx skills add illli-studio/ai-rss --skill wechat-competitor-monitor
 npx skills add illli-studio/ai-rss --skill ai-rss
 ```
 
-技能直接调用 npm 正式版，无需下载源码或单独构建 CLI。WorkBuddy 可通过「添加技能 → 上传技能」导入技能目录或 ZIP。[技能说明](skills/ai-rss/SKILL.md)和[完整命令](skills/ai-rss/references/commands.md)列出了全部操作。
+专项技能 ZIP 自带对应版本的 CLI。从源码安装专项技能时，可按技能说明运行 GitHub 对应版本。综合技能支持 npm 正式版。[技能说明](skills/ai-rss/SKILL.md)和[完整命令](skills/ai-rss/references/commands.md)列出了操作方式。
+
+### 在终端直接运行专项工作流
+
+在解压后的专项技能目录运行以下命令。把来源名称换成工作空间中的订阅，也可使用订阅 ID。
+
+```sh
+node bin/ai-rss.mjs archive search --keyword "AI 编程" --keyword "编程助手" --days 7 --limit 15
+node bin/ai-rss.mjs archive brief --timezone Asia/Shanghai --limit 12
+node bin/ai-rss.mjs archive compare --source "品牌甲" --source "品牌乙" --days 7
+```
+
+三个命令默认输出可直接阅读的 Markdown，也支持 `--format json`。搜索合并多个关键词的匹配，简报按当地自然日选取不同来源，竞品对比按公众号分别统计并列出证据。命中篇数涵盖所有匹配页，`--limit` 控制展示数量（竞品对比按每个号计算）。这三个命令只读取自己的订阅归档。要定时跟踪，可让技能调用已有的监控和日报规则。
 
 登录后可以直接说：「把这几个公众号加进竞品组，采集一轮。告诉我哪些没跑成功，再把最近的新品和调价动态按来源列出来。」
 

@@ -5,6 +5,7 @@ import { controlPath as AI } from '../src/client.mjs';
 import { activeClient, login, logout } from '../src/login.mjs';
 import { markdownReport } from '../src/report.mjs';
 import { intelligenceCommand } from '../src/intelligence.mjs';
+import { archiveWorkflow } from '../src/archive-workflows.mjs';
 import pkg from '../package.json' with { type: 'json' };
 
 const HELP = `ai-rss — 微信公众号订阅文章自动化
@@ -27,6 +28,10 @@ const HELP = `ai-rss — 微信公众号订阅文章自动化
   ai-rss job wait <任务ID> [--timeout 秒]
   ai-rss article list [--source ID] [--keyword 词] [--days 天] [--page 页] [--limit 篇]
   ai-rss article show <文章ID>
+  ai-rss archive search [--keyword 关键词] [--days 天数] [--source 名称或ID]
+  ai-rss archive brief [--date YYYY-MM-DD] [--timezone 时区] [--source 名称或ID]
+  ai-rss archive compare --source 品牌A --source 品牌B [--days 天数] [--keyword 关键词]
+    来源与关键词可重复传入；--limit 设置展示篇数；--format markdown|json
   ai-rss article star|unstar <文章ID>
   ai-rss article delete <文章ID> [文章ID ...] --yes
   ai-rss article delete --all [--source ID] [--keyword 词] [--days 天] --yes
@@ -115,6 +120,7 @@ async function main([group, action, ...args]) {
     return output(await logout({localOnly:v['local-only']}));
   }
   const api = await activeClient();
+  if (group==='archive') return output(await archiveWorkflow(api,action,args));
   if (['intel','report','metrics'].includes(group)) {
     const result=await intelligenceCommand(api,group,action,args);
     if (result?.partial && group==='metrics') process.exitCode=1;

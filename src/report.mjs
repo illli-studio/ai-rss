@@ -1,5 +1,5 @@
-const escape = (text) => String(text ?? '').replace(/[\x00-\x1f\x7f]/g, ' ').replace(/[\\`*_[\]<>#]/g, '\\$&');
-const safeLink = (text) => {
+export const escape = (text) => String(text ?? '').replace(/[\x00-\x1f\x7f]/g, ' ').replace(/[\\`*_[\]<>#]/g, '\\$&');
+export const safeLink = (text) => {
   try {
     const url = new URL(text);
     return url.protocol === 'https:' && !url.username && !url.password ? url.href.replace(/[<>]/g, encodeURIComponent) : '';

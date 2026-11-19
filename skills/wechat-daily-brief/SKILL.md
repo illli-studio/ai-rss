@@ -5,13 +5,13 @@ description: 微信公众号每日简报。根据现有 IRSS 订阅生成今天�
 
 # 微信公众号每日简报
 
-从本技能目录运行命令。安装包内置 CLI，需要 Node.js 22 或更新版本。下文的 `ai-rss` 代表 `node bin/ai-rss.mjs`；从源码安装且目录中没有 bin 时，使用已安装的 `ai-rss` 或 `npx --yes @illli-studio/ai-rss@0.2.4`。
+从本技能目录运行命令。安装包内置 CLI，需要 Node.js 22 或更新版本。下文的 `ai-rss` 代表 `node bin/ai-rss.mjs`；从源码安装且目录中没有 bin 时，使用 0.2.5 或更高版本的 `ai-rss`，也可用 `npx --yes --package=https://codeload.github.com/illli-studio/ai-rss/tar.gz/refs/tags/skills-v0.2.5 ai-rss`。
 
 先运行 `ai-rss status`，沿用本机已有 IRSS 登录、实例和订阅。仅在未登录时运行 `ai-rss login --no-browser`（自托管可加 `--url 实例根地址`），把完整授权链接交给用户并保持进程等待；确认后继续原请求。网络故障或套餐到期时展示实际错误或续费入口。不要索要密码或密钥。
 
 ## 先读一期
 
-用 `ai-rss source list` 确定覆盖的订阅。用 `ai-rss article list --days 2 --page 1 --limit 100` 取近期归档，按用户所在时区筛选今天的发布时间；昨天或历史简报扩大查询窗口，读完相关分页。同一文章按 ID 去重，指定来源时加 `--source ID`。向用户说明简报日期、时区、覆盖来源与文章数。
+直接执行 `ai-rss archive brief --timezone Asia/Shanghai --limit 12`，使用用户实际时区；查某一天时加 --date YYYY-MM-DD。日界以指定时区的自然日计算。默认读取现有全部订阅；可重复传 --source 选定公众号。命令跨页统计，并轮流从各来源挑选文章，防止高频账号占满整期。Markdown 可直接阅读，--format json 返回结构化素材。先给出今天值得读的要点，对同一事件合并报道并保留来源。标明命中数与选入篇数。
 
 对入选文章运行 `ai-rss article show 文章ID`，按主题合并重复报道，每条要点附公众号名称和原文链接。正文缺失时只列已知信息，不凭标题补写事实。没有结果时查看 `ai-rss overview`，区分尚未订阅、采集未完成、来源异常和当天无更新。单次简报直接在对话里交付，无需创建规则。
 
