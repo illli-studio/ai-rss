@@ -8,6 +8,8 @@ root = Path(__file__).resolve().parents[1]
 version = json.loads((root / 'package.json').read_text(encoding='utf-8'))['version']
 parser = argparse.ArgumentParser(description=__doc__)
 focused = {
+    'wechat-data-analyst': ('微信公众号数据分析师', 'WeChat Official Account Analyst',
+        '从我的订阅里找三个对标号，再分析有哪些文章的阅读量明显高于同号常态。'),
     'wechat-article-search': ('微信公众号文章搜索', 'WeChat Article Search',
         '查找我的订阅里最近 7 天提到人工智能的公众号文章。'),
     'wechat-daily-brief': ('微信公众号每日简报', 'WeChat Daily Brief',
@@ -55,7 +57,8 @@ if workbuddy and name == 'ai-rss':
     skill = f'---{frontmatter}{fields}\n---\n\n{heading}\n\n{intro}\n\n{instructions}'
     paths['scripts/verify.mjs'] = root/'test/delete.test.mjs'
 elif workbuddy:
-    paths['scripts/verify.mjs'] = root/'test/archive-workflows.test.mjs'
+    suite = 'analyst' if name == 'wechat-data-analyst' else 'archive-workflows'
+    paths['scripts/verify.mjs'] = root/'test'/f'{suite}.test.mjs'
     title, en_title, example = focused[name]
     _, frontmatter, body = skill.split('---', 2)
     description = next(line.removeprefix('description: ') for line in frontmatter.splitlines()
@@ -63,7 +66,7 @@ elif workbuddy:
     metadata = dict(display_name=title, display_name_en=en_title, description_zh=description,
                     examples_zh=[example], version=version, author='illli-studio')
     fields = '\n'.join(f'{key}: {json.dumps(value, ensure_ascii=False)}' for key, value in metadata.items())
-    skill = f'---{frontmatter}{fields}\n---{body}\n## 本地验证\n\n运行 `node --test scripts/verify.mjs` 可用模拟归档验证跨页检索、简报日界和竞品对比，无需登录。\n'
+    skill = f'---{frontmatter}{fields}\n---{body}\n## 本地验证\n\n运行 `node --test scripts/verify.mjs` 可用模拟数据验证本技能的工作流，无需登录。\n'
 if workbuddy or name in focused:
     paths.update({'package.json': root/'package.json', 'bin/ai-rss.mjs': root/'bin/ai-rss.mjs'})
     paths.update({f'src/{source.name}': source for source in sorted((root/'src').glob('*.mjs'))})

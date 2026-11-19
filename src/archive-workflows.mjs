@@ -10,7 +10,7 @@ const signals = [
   ['渠道与活动', /门店|渠道|开业|活动|合作|展会/],
 ];
 
-function integer(value, min, max, label) {
+export function integer(value, min, max, label) {
   const n = Number(value);
   if (!Number.isSafeInteger(n) || n < min || n > max) throw new Error(label+'须为 '+min+'–'+max+' 的整数');
   return n;
@@ -37,7 +37,7 @@ export function dateWindow(date, timezone, now) {
   return { date, timezone, since, until:boundary(tomorrow,utc+day)-1 };
 }
 
-function selectSources(all, selectors) {
+export function selectSources(all, selectors) {
   if (!selectors.length) return all;
   const selected=new Map();
   for (const selector of selectors) {

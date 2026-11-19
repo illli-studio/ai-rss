@@ -21,10 +21,11 @@ ai-rss login
 
 ## 安装 AI 技能
 
-三个专项技能可按需单独安装。它们与综合技能共享同一台设备、同一用户环境的 IRSS 登录，直接使用账号已有的订阅和文章。仅在首次连接时授权一次。WorkBuddy 中选择「添加技能 → 上传技能」，导入对应 ZIP。安装包内置 CLI，需要 Node.js 22 或更高版本。
+四个专项技能可按需单独安装。它们与综合技能共享同一台设备、同一用户环境的 IRSS 登录，直接使用账号已有的订阅和文章。仅在首次连接时授权一次。WorkBuddy 中选择「添加技能 → 上传技能」，导入对应 ZIP。安装包内置 CLI，需要 Node.js 22 或更高版本。
 
 | 技能 | 试着这样问 | WorkBuddy 安装包 |
 | --- | --- | --- |
+| 微信公众号数据分析师 | 从我的订阅里推荐对标号，找出阅读量显著高于同号常态的文章。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/skills-v0.2.6/downloads/wechat-data-analyst-workbuddy-0.2.6.zip) |
 | 微信公众号文章搜索 | 找到我的订阅里最近一周讨论 AI 编程的文章，附原文链接。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-article-search-workbuddy-0.2.5.zip) |
 | 微信公众号每日简报 | 我关注的公众号今天发了什么？整理成一份简报。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-daily-brief-workbuddy-0.2.5.zip) |
 | 微信公众号竞品监控 | 对比这两个品牌上周的新品和促销，列出依据。 | [下载 ZIP](https://raw.githubusercontent.com/illli-studio/ai-rss/main/downloads/wechat-competitor-monitor-workbuddy-0.2.5.zip) |
@@ -33,6 +34,7 @@ ai-rss login
 
 ```sh
 npx skills add illli-studio/ai-rss --skill wechat-article-search
+npx skills add illli-studio/ai-rss --skill wechat-data-analyst
 npx skills add illli-studio/ai-rss --skill wechat-daily-brief
 npx skills add illli-studio/ai-rss --skill wechat-competitor-monitor
 ```
@@ -46,6 +48,8 @@ npx skills add illli-studio/ai-rss --skill ai-rss
 ```
 
 专项技能 ZIP 自带对应版本的 CLI。从源码安装专项技能时，可按技能说明运行 GitHub 对应版本。综合技能支持 npm 正式版。[技能说明](skills/ai-rss/SKILL.md)和[完整命令](skills/ai-rss/references/commands.md)列出了操作方式。
+
+数据分析师内置 `analyst peers` 和 `analyst performance`。用现有归档找对标账号；阅读量分析仅读取已有快照，并和同一账号观测时长相近的文章比较。命令、样本范围与比较口径见[数据分析师技能说明](skills/wechat-data-analyst/SKILL.md)。
 
 ### 在终端直接运行专项工作流
 
